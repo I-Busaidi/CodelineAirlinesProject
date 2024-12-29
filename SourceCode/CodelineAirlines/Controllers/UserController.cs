@@ -3,6 +3,7 @@ using CodelineAirlines.Models;
 using CodelineAirlines.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace CodelineAirlines.Controllers
 {
@@ -41,6 +42,7 @@ namespace CodelineAirlines.Controllers
 
 
         }
+        [AllowAnonymous]
         [HttpGet("Login")]
         public IActionResult Login(string email, string password)
         {
@@ -48,7 +50,8 @@ namespace CodelineAirlines.Controllers
 
             if (token == null)
             {
-                return BadRequest(new { Message = "Invalid Credintials" });
+            
+                return Unauthorized(new { Message = "Invalid Credentials" });
             }
 
             return Ok(new { token });
@@ -65,6 +68,69 @@ namespace CodelineAirlines.Controllers
             return Ok(user);
 
         }
+        [HttpPut("UpdateUser/{id}")]
+        public IActionResult UpdateUser([FromBody] UserInputDTOs userInputDTO, int id)
+        {
+            try
+            {
+                _userService.UpdateUsers(userInputDTO, id);
+                return Ok(new { Message = "User updated successfully." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while updating the user.", Error = ex.Message });
+            }
+        }
+        [HttpDelete("DeactivateUser/{id}")]
+     
+        public IActionResult DeactivateUser(int id)
+        {
+            try
+            {
+                _userService.DeactivateUser(id);
+                return Ok(new { Message = "User deactivated successfully." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while deactivating the user.", Error = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = "admin")]//Allow only admin 
+        [HttpPost("ReactivateUser/{id}")]
+        public IActionResult ReactivateUser(int id)
+        {
+            try
+            {
+                _userService.ReactivateUser(id);
+                return Ok(new { Message = "User reactivated successfully." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while reactivating the user.", Error = ex.Message });
+            }
+        }
+
 
 
     }

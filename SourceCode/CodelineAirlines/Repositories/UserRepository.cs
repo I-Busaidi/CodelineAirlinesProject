@@ -25,7 +25,7 @@ namespace CodelineAirlines.Repositories
         }
         public User GetUserForLogin(string email, string password)
         {
-            return _context.Users.Where(u => u.UserEmail == email & u.Password == password).FirstOrDefault();
+            return _context.Users.Where(u => u.UserEmail == email && u.Password == password).FirstOrDefault();
 
         }
         public User GetById(int id)
@@ -33,32 +33,33 @@ namespace CodelineAirlines.Repositories
             return _context.Users.FirstOrDefault(a => a.UserId == id);
         }
 
-        public void UpdateUser(User user, int id)
+        public void UpdateUser(User user)
         {
-            {
 
-                var currenruser = GetById(id);
-                if (currenruser != null)
-                {
-                    currenruser.UserName = user.UserName;
-                    currenruser.UserEmail = user.UserEmail;
-                    currenruser.Password = user.Password;
-
-
-                    _context.Users.Update(currenruser);
-                    _context.SaveChanges();
-                }
-            }
+            _context.Users.Update(user);
+            _context.SaveChanges();
         }
-        public void Delete(int id)
+
+        public void DeactivateUser(int userId)
         {
-            var user = GetById(id);
-            if (user != null)
+            var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
+            if (user == null)
             {
-                _context.Users.Remove(user);
-                _context.SaveChanges();
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
             }
+
+            user.isActive = false; // Deactivate the user
+            _context.SaveChanges();
         }
+
+        public void ReactivateUser(int userId)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
+
+            user.isActive = true; // Reactivate the user
+            _context.SaveChanges();
+        }
+
 
     }
 }
