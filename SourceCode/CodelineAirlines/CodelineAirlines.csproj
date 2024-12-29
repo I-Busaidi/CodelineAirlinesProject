@@ -23,13 +23,10 @@
     <Folder Include="DTOs\AirportDTOs\" />
     <Folder Include="DTOs\FlightDTOs\" />
     <Folder Include="DTOs\BookingDTOs\" />
-    <Folder Include="DTOs\UserDTOs\" />
     <Folder Include="DTOs\ReviewDTOs\" />
     <Folder Include="DTOs\PassengerDTOs\" />
     <Folder Include="Helpers\" />
     <Folder Include="Mapping\" />
-    <Folder Include="Services\" />
-    <Folder Include="Repositories\" />
   </ItemGroup>
 
 </Project>
