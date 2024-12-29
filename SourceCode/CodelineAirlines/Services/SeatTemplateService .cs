@@ -72,5 +72,11 @@ namespace CodelineAirlines.Services
 
             return seatTemplates;
         }
+
+        // Retrieves seat templates by airplane model name, ordered by SeatCost in descending order
+        public IEnumerable<SeatTemplate> GetSeatTemplatesByModel(string airplaneModel)
+        {
+            return _seatTemplateRepository.GetSeatTemplatesByModel(airplaneModel);
+        }
     }
 }

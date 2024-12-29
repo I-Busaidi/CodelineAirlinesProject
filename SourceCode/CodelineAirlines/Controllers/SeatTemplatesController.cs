@@ -29,5 +29,21 @@ namespace CodelineAirlines.Controllers
 
             return Ok("Seat templates successfully generated.");
         }
+
+        // Endpoint to get seat templates by airplane model, ordered by SeatCost in descending order
+        [HttpGet("by-model/{airplaneModel}")]
+        public IActionResult GetSeatTemplatesByModelOrderedByCost(string airplaneModel)
+        {
+            var seatTemplates = _seatTemplateService.GetSeatTemplatesByModel(airplaneModel);
+
+            // Check if any seat templates were found
+            if (seatTemplates == null || !seatTemplates.Any())
+            {
+                return NotFound($"No seat templates found for airplane model '{airplaneModel}'.");
+            }
+
+            // Return the seat templates ordered by cost
+            return Ok(seatTemplates);
+        }
     }
 }
