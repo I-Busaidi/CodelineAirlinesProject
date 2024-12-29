@@ -1,4 +1,5 @@
 ﻿using CodelineAirlines.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CodelineAirlines.Repositories
 {
@@ -21,7 +22,15 @@ namespace CodelineAirlines.Repositories
         public Airplane GetById(int id)
         {
             return _context.Airplanes
+                .Include(a => a.Airport)
                            .FirstOrDefault(a => a.AirplaneId == id);
+        }
+
+        public List<Airplane> GetAll()
+        {
+            return _context.Airplanes // Retrieve all airplanes synchronously
+             .Include(a => a.Airport)
+             .ToList();
         }
     }
 }

@@ -7,5 +7,6 @@ namespace CodelineAirlines.Services
     {
         Airplane AddAirplane(AirplaneCreateDTO airplaneCreateDto);
         AirplaneOutputDto GetById(int id);
+        List<AirplaneOutputDto> GetAll();
     }
 }

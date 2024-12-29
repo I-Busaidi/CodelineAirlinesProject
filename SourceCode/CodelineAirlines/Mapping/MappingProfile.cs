@@ -11,7 +11,8 @@ namespace CodelineAirlines.Mapping
         {
             CreateMap<AirportInputDTO, Airport>();
             CreateMap<AirplaneCreateDTO, Airplane>();
-            CreateMap<Airplane, AirplaneOutputDto>();
+            CreateMap<Airplane, AirplaneOutputDto>()
+                .ForMember(dest => dest.AirportName, opt => opt.MapFrom(src => src.Airport.AirportName)); // Mapping the Airport Name
             CreateMap<UserInputDTOs, User>();   
             CreateMap<Airport, AirportOutputDTO>();
         }
