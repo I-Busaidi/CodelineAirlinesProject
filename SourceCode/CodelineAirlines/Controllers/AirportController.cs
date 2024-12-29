@@ -32,5 +32,35 @@ namespace CodelineAirlines.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("GetAirports")]
+        public IActionResult GetAirports(
+            int pageNumber = 1, 
+            int pageSize = 10, 
+            string country = "", 
+            string city = "", 
+            string airportName = "")
+        {
+            try
+            {
+                var airports = _airportService.GetAllAirports()
+                    .Where(ap => ap.Country.ToLower().Trim().Contains(country.ToLower().Trim())
+                    & ap.City.ToLower().Trim().Contains(city.ToLower().Trim())
+                    & ap.AirportName.ToLower().Trim().Contains(airportName.ToLower().Trim()))
+                    .Skip((pageNumber - 1)* pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                return Ok(airports);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException);
+            }
+        }
     }
 }

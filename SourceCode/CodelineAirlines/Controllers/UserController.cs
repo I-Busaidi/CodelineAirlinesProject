@@ -29,13 +29,13 @@ namespace CodelineAirlines.Controllers
             {
 
                 _userService.Register(userInputDTO);
-                return Ok(new { Message = "User added successfully", userInputDTO.Name});
+                return Ok(new { Message = "User added successfully", userInputDTO.UserName});
 
             }
             catch (Exception ex)
             {
-
-                return StatusCode(500, new { Message = "An error occurred while adding the user", Error = ex.InnerException.Message });
+                var errorMessage = ex.InnerException?.Message ?? ex.Message;
+                return StatusCode(500, new { Message = "An error occurred while adding the user", Error = errorMessage });
 
             }
 

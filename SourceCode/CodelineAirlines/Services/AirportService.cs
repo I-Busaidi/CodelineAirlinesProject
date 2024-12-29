@@ -42,5 +42,17 @@ namespace CodelineAirlines.Services
             Airport newAirport = _mapper.Map<Airport>(airportInputDTO);
             return _airportRepository.AddAirport(newAirport);
         }
+
+        public List<AirportOutputDTO> GetAllAirports()
+        {
+            var airports = _airportRepository.GetAllAirports().ToList();
+            if (airports == null || airports.Count == 0)
+            {
+                throw new InvalidOperationException("No airports available");
+            }
+
+            var airportsOutput = _mapper.Map<List<AirportOutputDTO>>(airports);
+            return airportsOutput;
+        }
     }
 }

@@ -41,6 +41,11 @@ namespace CodelineAirlines.Services
         {
 
             User NewUser = _mapper.Map<User>(userInput);
+
+            if (string.IsNullOrEmpty(NewUser.UserEmail))
+            {
+                throw new Exception("UserEmail is null or empty");
+            }
             _userrepo.AddUser(NewUser);
 
 
