@@ -48,5 +48,24 @@ namespace CodelineAirlines.Services
             // Use AutoMapper to map the list of Airplanes to AirplaneOutputDto
             return _mapper.Map<List<AirplaneOutputDto>>(airplanes);
         }
+
+        // Update an airplane's details
+        public bool UpdateAirplane(int id, AirplaneCreateDTO airplaneCreateDto)
+        {
+            var airplane = _airplaneRepository.GetById(id);
+
+            if (airplane == null)
+            {
+                return false;  // Airplane not found
+            }
+
+            // Map the incoming AirplaneCreateDto to the existing Airplane entity
+            _mapper.Map(airplaneCreateDto, airplane);
+
+            // Update the airplane in the repository
+            _airplaneRepository.Update(airplane);
+
+            return true;  // Successfully updated
+        }
     }
 }

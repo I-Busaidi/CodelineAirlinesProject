@@ -55,5 +55,19 @@ namespace CodelineAirlines.Controllers
 
             return Ok(airplaneDtos);  // Return the list of airplane DTOs as a JSON response
         }
+
+        // Endpoint to update an airplane's details
+        [HttpPut("{id}")]
+        public IActionResult UpdateAirplane(int id, [FromBody] AirplaneCreateDTO airplaneCreateDto)
+        {
+            var success = _airplaneService.UpdateAirplane(id, airplaneCreateDto);
+
+            if (!success)
+            {
+                return NotFound();  // Return 404 if airplane not found
+            }
+
+            return NoContent();  // Return 204 No Content if the update was successful
+        }
     }
 }
