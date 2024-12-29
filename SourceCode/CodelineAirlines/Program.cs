@@ -16,7 +16,8 @@ namespace CodelineAirlines
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            
+            builder.Services.AddScoped<IAirportRepository, AirportRepository>();
+            builder.Services.AddScoped<IAirportService, AirportService>();
 
             builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
             builder.Services.AddControllers();
