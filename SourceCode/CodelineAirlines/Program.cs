@@ -19,6 +19,8 @@ namespace CodelineAirlines
             
 
             builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+            builder.Services.AddScoped<IAirplaneRepository, AirplaneRepository>();
+            builder.Services.AddScoped<IAirplaneService, AirplaneService>();
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
