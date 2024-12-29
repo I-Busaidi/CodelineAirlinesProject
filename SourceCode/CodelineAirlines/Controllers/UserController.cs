@@ -106,6 +106,29 @@ namespace CodelineAirlines.Controllers
             }
         }
 
+        [HttpPost("ReactivateUser/{id}")]
+        public IActionResult ReactivateUser(int id)
+        {
+            try
+            {
+                _userService.ReactivateUser(id);
+                return Ok(new { Message = "User reactivated successfully." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while reactivating the user.", Error = ex.Message });
+            }
+        }
+
+
 
     }
 }
