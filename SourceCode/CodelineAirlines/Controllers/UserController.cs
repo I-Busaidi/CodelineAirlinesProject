@@ -3,6 +3,7 @@ using CodelineAirlines.Models;
 using CodelineAirlines.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace CodelineAirlines.Controllers
 {
@@ -85,6 +86,7 @@ namespace CodelineAirlines.Controllers
             }
         }
         [HttpDelete("DeactivateUser/{id}")]
+     
         public IActionResult DeactivateUser(int id)
         {
             try
@@ -106,6 +108,7 @@ namespace CodelineAirlines.Controllers
             }
         }
 
+        [Authorize(Roles = "admin")]//Allow only admin 
         [HttpPost("ReactivateUser/{id}")]
         public IActionResult ReactivateUser(int id)
         {
