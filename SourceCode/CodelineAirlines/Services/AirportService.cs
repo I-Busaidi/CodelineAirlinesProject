@@ -1,0 +1,46 @@
+﻿using AutoMapper;
+using CodelineAirlines.DTOs.AirportDTOs;
+using CodelineAirlines.Models;
+using CodelineAirlines.Repositories;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+
+namespace CodelineAirlines.Services
+{
+    public class AirportService : IAirportService
+    {
+        private readonly IAirportRepository _airportRepository;
+        private readonly IMapper _mapper;
+
+        public AirportService(IAirportRepository airportRepository, IMapper mapper)
+        {
+            _airportRepository = airportRepository;
+            _mapper = mapper;
+        }
+
+        public string AddAirport(AirportInputDTO airportInputDTO)
+        {
+            if (airportInputDTO == null)
+            {
+                throw new ArgumentNullException("Input is null");
+            }
+
+            if (string.IsNullOrWhiteSpace(airportInputDTO.AirportName))
+            {
+                throw new InvalidOperationException("Airport name cannot be empty");
+            }
+
+            if (string.IsNullOrWhiteSpace(airportInputDTO.Country))
+            {
+                throw new InvalidOperationException("Airport country cannot be empty");
+            }
+
+            if (string.IsNullOrWhiteSpace(airportInputDTO.City))
+            {
+                throw new InvalidOperationException("Airport city cannot be empty");
+            }
+
+            Airport newAirport = _mapper.Map<Airport>(airportInputDTO);
+            return _airportRepository.AddAirport(newAirport);
+        }
+    }
+}
