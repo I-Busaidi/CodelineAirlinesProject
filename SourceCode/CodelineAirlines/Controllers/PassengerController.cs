@@ -12,6 +12,7 @@ namespace CodelineAirlines.Controllers
     public class PassengerController : ControllerBase
     {
         private readonly IPassengerService _passengerService;
+        private readonly IUserService _userService;
         public PassengerController(IPassengerService passengerService)
         {
             _passengerService = passengerService;
@@ -49,6 +50,27 @@ namespace CodelineAirlines.Controllers
                 return StatusCode(500, new { Message = "An error occurred while creating the passenger profile.", Error = ex.Message });
             }
         }
+  
+       
+            [HttpGet("Profile")]
+            public IActionResult GetPassengerProfile()
+            {
+                try
+                {
+                    // Get the user ID from the JWT token (assuming JWT is used)
+                    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+                // Fetch the passenger profile based on userId
+                var passengerProfile = _passengerService.GetPassengerProfile(userId);
+
+                    return Ok(passengerProfile);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new { Message = ex.Message });
+                }
+            }
+        
 
 
     }

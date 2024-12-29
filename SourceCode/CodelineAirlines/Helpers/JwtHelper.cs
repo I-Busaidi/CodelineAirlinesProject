@@ -27,7 +27,7 @@ namespace CodelineAirlines.Helpers
             {
                 var jwtTokenObj = handler.ReadJwtToken(jwtToken);
                 var claim = jwtTokenObj.Claims.FirstOrDefault(c => c.Type == claimType);
-                return claim?.Value;
+                return claim?.Value ?? throw new ArgumentException($"Claim '{claimType}' not found in the token.");
             }
             throw new ArgumentException("Invalid JWT Token.");
         }

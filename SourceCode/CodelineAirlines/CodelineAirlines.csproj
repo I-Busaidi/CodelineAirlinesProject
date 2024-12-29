@@ -23,8 +23,6 @@
     <Folder Include="DTOs\FlightDTOs\" />
     <Folder Include="Mapping\" />
     <Folder Include="DTOs\ReviewDTOs\" />
-    <Folder Include="DTOs\PassengerDTOs\" />
-    <Folder Include="Helpers\" />
     <Folder Include="Mapping\" />
   </ItemGroup>
 
