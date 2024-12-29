@@ -83,6 +83,30 @@ namespace CodelineAirlines.Services
             }
         }
 
+        public UserOutputDTO GetUserByID(int id)
+        {
+            try
+            {
+                var user = _userrepo.GetById(id);
+                var outPutUser = new UserOutputDTO
+                {
+               
+                    Name = user.UserName,
+                    Email=user.UserEmail,
+                    Role = user.UserRole
+                
+
+                };
+
+                return outPutUser;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.InnerException.Message);
+            }
+
+        }
 
 
 

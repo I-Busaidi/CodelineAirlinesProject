@@ -53,6 +53,19 @@ namespace CodelineAirlines.Controllers
 
             return Ok(new { token });
         }
+        [Authorize]
+        [HttpGet("GetUserDetails")]
+        public IActionResult GetUserDetails(int id)
+        {
+            var user = _userService.GetUserByID(id);
+            if (user == null)
+            {
+                return NotFound("user not found");
+            }
+            return Ok(user);
+
+        }
+
 
     }
 }
