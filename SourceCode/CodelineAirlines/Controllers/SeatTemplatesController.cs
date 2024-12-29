@@ -45,5 +45,16 @@ namespace CodelineAirlines.Controllers
             // Return the seat templates ordered by cost
             return Ok(seatTemplates);
         }
+
+        // Endpoint to delete seat templates by airplane model
+        [HttpDelete("delete/{airplaneModel}")]
+        public IActionResult DeleteSeatTemplatesByModel(string airplaneModel)
+        {
+            // Call the service to delete the seat templates by model
+            _seatTemplateService.DeleteSeatTemplatesByModel(airplaneModel);
+
+            // Return a success response
+            return NoContent(); // HTTP 204 No Content to indicate successful deletion
+        }
     }
 }
