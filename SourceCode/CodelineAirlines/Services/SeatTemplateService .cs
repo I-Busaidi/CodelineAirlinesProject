@@ -29,10 +29,10 @@ namespace CodelineAirlines.Services
             seatTemplates.AddRange(GenerateSeatsForClass(dto.AirplaneModel, "First Class", dto.FirstClassSeats, 500));  // 500 for first class seat cost
 
             // Generate Seat Templates for Business Class
-            seatTemplates.AddRange(GenerateSeatsForClass(dto.AirplaneModel, "Business", dto.BusinessSeats, 200, seatTemplates.Count +1));  // 200 for business seat cost
+            seatTemplates.AddRange(GenerateSeatsForClass(dto.AirplaneModel, "Business", dto.BusinessSeats, 200, seatTemplates.Count +1, 6));  // 200 for business seat cost
 
             // Generate Seat Templates for Economy Class
-            seatTemplates.AddRange(GenerateSeatsForClass(dto.AirplaneModel, "Economy", dto.EconomySeats, 100, seatTemplates.Count +1));  // 100 for economy seat cost
+            seatTemplates.AddRange(GenerateSeatsForClass(dto.AirplaneModel, "Economy", dto.EconomySeats, 100, seatTemplates.Count +1, 10));  // 100 for economy seat cost
 
             // Add to database
             foreach (var seatTemplate in seatTemplates)
@@ -42,19 +42,19 @@ namespace CodelineAirlines.Services
         }
 
         // Helper method to generate seats for a specific class
-        private List<SeatTemplate> GenerateSeatsForClass(string airplaneModel, string seatType, int totalSeats, decimal seatCost, int startingNumber = 1)
+        private List<SeatTemplate> GenerateSeatsForClass(string airplaneModel, string seatType, int totalSeats, decimal seatCost, int startingNumber = 1, int seatsPerRow = 4)
         {
             var seatTemplates = new List<SeatTemplate>();
-            int rows = (totalSeats / 10) + startingNumber -1;  // Assuming there are 10 seats per row (3 columns on each side of the aisle)
+            int rows = (totalSeats / seatsPerRow) + startingNumber -1;  // Assuming there are 10 seats per row (3 columns on each side of the aisle)
 
             // Generate the seat templates
             int seatCount = 1;
             for (int row = startingNumber; row <= rows; row++)
             {
-                for (int column = 1; column <= 10; column++)  // Assuming 10 seats per row
+                for (int column = 1; column <= seatsPerRow; column++)  // Assuming 10 seats per row
                 {
                     string seatNumber = $"{row}{(char)('A' + column - 1)}";  // Seat numbers: 1A, 1B, etc.
-                    bool isWindowSeat = (column == 1 || column == 10);  // Window seats are the first and last in each row
+                    bool isWindowSeat = (column == 1 || column == seatsPerRow);  // Window seats are the first and last in each row
 
                     var seatTemplate = new SeatTemplate
                     {
@@ -77,6 +77,12 @@ namespace CodelineAirlines.Services
         public IEnumerable<SeatTemplate> GetSeatTemplatesByModel(string airplaneModel)
         {
             return _seatTemplateRepository.GetSeatTemplatesByModel(airplaneModel);
+        }
+
+        // Deletes all SeatTemplates by Airplane Model
+        public void DeleteSeatTemplatesByModel(string airplaneModel)
+        {
+            _seatTemplateRepository.DeleteByModel(airplaneModel);
         }
     }
 }

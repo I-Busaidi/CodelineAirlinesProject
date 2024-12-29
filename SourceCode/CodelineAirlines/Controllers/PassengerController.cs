@@ -70,7 +70,45 @@ namespace CodelineAirlines.Controllers
                     return BadRequest(new { Message = ex.Message });
                 }
             }
-        
+
+        [HttpPut("UpdatePassengerDetails")]
+        public IActionResult UpdatePassengerProfile([FromBody] PassengerInputDTOs passengerInputDTO)
+        {
+            try
+            {
+                // Get the user ID from the JWT token
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+                // Update the passenger details through the service
+                _passengerService.UpdatePassengerDetails(userId, passengerInputDTO);
+
+                return Ok(new { Message = "Passenger details updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+        [HttpGet("GetLoyaltyPoints")]
+        public IActionResult GetLoyaltyPoints()
+        {
+            try
+            {
+                // Get the user ID from the JWT token
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+                // Get loyalty points from service
+                var loyaltyPoints = _passengerService.GetLoyaltyPoints(userId);
+
+                // Return the loyalty points as part of the response
+                return Ok(new { LoyaltyPoints = loyaltyPoints });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
 
 
     }

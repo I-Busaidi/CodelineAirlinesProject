@@ -28,5 +28,20 @@ namespace CodelineAirlines.Repositories
                 .OrderByDescending(st => st.SeatCost)  // Order by SeatCost in descending order
                 .ToList();  // Execute the query and return the result as a list
         }
+
+        // Deletes all SeatTemplates associated with a given Airplane Model
+        public void DeleteByModel(string airplaneModel)
+        {
+            var seatTemplates = _context.SeatTemplates
+                .Where(st => st.AirplaneModel == airplaneModel)  // Find all seat templates for the model
+                .ToList();
+
+            if (seatTemplates.Any())
+            {
+                _context.SeatTemplates.RemoveRange(seatTemplates);  // Remove all matching seat templates
+
+                _context.SaveChanges();
+            }
+        }
     }
 }

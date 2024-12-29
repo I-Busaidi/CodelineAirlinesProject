@@ -13,11 +13,17 @@ namespace CodelineAirlines.DTOs.PassengerDTOs
         public string Gender { get; set; }
 
         [Required(ErrorMessage = "Passenger date of birth is required")]
-        public DateOnly BirthDate { get; set; }
+        public BirthDateDTO BirthDate { get; set; }
 
         [Required(ErrorMessage = "Nationality is required")]
         [StringLength(20)]
         public string Nationality { get; set; }
 
+    }
+    public class BirthDateDTO
+    {
+        public int Year { get; set; }
+        public int Month { get; set; }
+        public int Day { get; set; }
     }
 }

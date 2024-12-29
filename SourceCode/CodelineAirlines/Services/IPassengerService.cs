@@ -6,5 +6,7 @@ namespace CodelineAirlines.Services
     {
         void AddPassenger(PassengerInputDTOs passengerInputDTO, int userId, bool isAdmin);
         PassengerOutputDTO GetPassengerProfile(int userId);
+        void UpdatePassengerDetails(int userId, PassengerInputDTOs passengerInputDTO);
+        int GetLoyaltyPoints(int userId);
     }
 }
