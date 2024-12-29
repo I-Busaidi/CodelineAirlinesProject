@@ -41,6 +41,7 @@ namespace CodelineAirlines.Controllers
 
 
         }
+        [AllowAnonymous]
         [HttpGet("Login")]
         public IActionResult Login(string email, string password)
         {
@@ -48,7 +49,8 @@ namespace CodelineAirlines.Controllers
 
             if (token == null)
             {
-                return BadRequest(new { Message = "Invalid Credintials" });
+            
+                return Unauthorized(new { Message = "Invalid Credentials" });
             }
 
             return Ok(new { token });
@@ -64,6 +66,23 @@ namespace CodelineAirlines.Controllers
             }
             return Ok(user);
 
+        }
+        [HttpPut("UpdateUser/{id}")]
+        public IActionResult UpdateUser([FromBody] UserInputDTOs userInputDTO, int id)
+        {
+            try
+            {
+                _userService.UpdateUsers(userInputDTO, id);
+                return Ok(new { Message = "User updated successfully." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while updating the user.", Error = ex.Message });
+            }
         }
 
 

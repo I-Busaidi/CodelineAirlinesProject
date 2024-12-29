@@ -4,6 +4,8 @@ using CodelineAirlines.DTOs.UserDTOs;
 using CodelineAirlines.Models;
 using CodelineAirlines.Repositories;
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -60,12 +62,17 @@ namespace CodelineAirlines.Services
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["SecretKey"];
 
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                throw new InvalidOperationException("JWT SecretKey is not configured.");
+            }
+
             var claims = new[]
             {
         new Claim(JwtRegisteredClaimNames.Sub, userId),
         new Claim(JwtRegisteredClaimNames.UniqueName, username),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                     };
+    };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -83,9 +90,12 @@ namespace CodelineAirlines.Services
             
             // Hash the entered password
             string HashedPassword = HashPassword(password);
+           
+           
             var user = _userrepo.GetUserForLogin(email, HashedPassword);
             if (user == null)
             {
+          
                 return null;
             }
 
@@ -119,6 +129,29 @@ namespace CodelineAirlines.Services
             }
 
         }
+
+        public void UpdateUsers(UserInputDTOs userInputDTO, int id)
+        {
+            // Retrieve the existing user by ID
+            var currentUser = _userrepo.GetById(id);
+            if (currentUser == null)
+            {
+                throw new KeyNotFoundException($"User with ID {id} not found.");
+            }
+
+            // Map the DTO to the current user entity (only update properties that exist in the DTO)
+            _mapper.Map(userInputDTO, currentUser);
+
+            // Optional: Hash the password if it's provided in the DTO
+            if (!string.IsNullOrEmpty(userInputDTO.Password))
+            {
+                currentUser.Password = HashPassword(userInputDTO.Password);
+            }
+
+            // Call repository to update the user
+            _userrepo.UpdateUser(currentUser);
+        }
+
 
 
 

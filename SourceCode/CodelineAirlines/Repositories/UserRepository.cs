@@ -25,7 +25,7 @@ namespace CodelineAirlines.Repositories
         }
         public User GetUserForLogin(string email, string password)
         {
-            return _context.Users.Where(u => u.UserEmail == email & u.Password == password).FirstOrDefault();
+            return _context.Users.Where(u => u.UserEmail == email && u.Password == password).FirstOrDefault();
 
         }
         public User GetById(int id)
@@ -33,22 +33,11 @@ namespace CodelineAirlines.Repositories
             return _context.Users.FirstOrDefault(a => a.UserId == id);
         }
 
-        public void UpdateUser(User user, int id)
+        public void UpdateUser(User user)
         {
-            {
 
-                var currenruser = GetById(id);
-                if (currenruser != null)
-                {
-                    currenruser.UserName = user.UserName;
-                    currenruser.UserEmail = user.UserEmail;
-                    currenruser.Password = user.Password;
-
-
-                    _context.Users.Update(currenruser);
-                    _context.SaveChanges();
-                }
-            }
+            _context.Users.Update(user);
+            _context.SaveChanges();
         }
         public void Delete(int id)
         {
