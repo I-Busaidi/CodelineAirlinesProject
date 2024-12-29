@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
@@ -20,16 +21,12 @@
   <ItemGroup>
     <Folder Include="Controllers\" />
     <Folder Include="DTOs\AirplaneDTOs\" />
-    <Folder Include="DTOs\AirportDTOs\" />
     <Folder Include="DTOs\FlightDTOs\" />
     <Folder Include="DTOs\BookingDTOs\" />
     <Folder Include="DTOs\UserDTOs\" />
     <Folder Include="DTOs\ReviewDTOs\" />
     <Folder Include="DTOs\PassengerDTOs\" />
     <Folder Include="Helpers\" />
-    <Folder Include="Mapping\" />
-    <Folder Include="Services\" />
-    <Folder Include="Repositories\" />
   </ItemGroup>
 
 </Project>
