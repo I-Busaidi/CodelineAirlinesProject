@@ -1,4 +1,6 @@
-﻿using CodelineAirlines.DTOs.UserDTOs;
+﻿using AutoMapper;
+using CodelineAirlines.DTOs.AirportDTOs;
+using CodelineAirlines.DTOs.UserDTOs;
 using CodelineAirlines.Models;
 using CodelineAirlines.Repositories;
 using System.Security.Cryptography;
@@ -9,10 +11,12 @@ namespace CodelineAirlines.Services
     public class UserService
     {
         private readonly IUserRepository _userrepo;
+        private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userrepo)
+        public UserService(IUserRepository userrepo, IMapper mapper)
         {
             _userrepo = userrepo;
+            _mapper = mapper;
         }
 
         private string HashPassword(string password)
@@ -30,17 +34,10 @@ namespace CodelineAirlines.Services
         }
         public void Register(UserInputDTOs userInput)
         {
-
-            var user = new User
-            {
-                UserName = userInput.Name,
-                UserEmail = userInput.Email,
-                Password = HashPassword(userInput.Password),  // Hash the password before storing it
-         
-                UserRole = userInput.Role
-            };
-            _userrepo.AddUser(user);
-
+     
+            User NewUser = _mapper.Map<User>(userInput);
+            _userrepo.AddUser(NewUser);
+        
 
         }
     }
