@@ -1,0 +1,55 @@
+# User-specific files
+.vs/
+.vscode/
+.idea/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+# Windows Installer files
+*.vssscc
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# NPM package directories
+node_modules/
+
+# JetBrains Rider IDE
+.idea/
+
+# Other build files
+[Dd]ebug/
+[Dd]ebugPublic/
+[Dd]ist/
+[Dd]ist/.[Dd]ebug/
+[Dd]ist/.[Dd]ebugPublic/
+[Dd]ebugLinux/
+bin/
+obj/
+
+# Visual Studio for Mac
+.vscode/
+
+# User-specific files
+.vs2019/
+.vs2017/
+
+# Build results
+bin/
+obj/
