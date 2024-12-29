@@ -8,7 +8,7 @@ using System.Text;
 
 namespace CodelineAirlines.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
         private readonly IUserRepository _userrepo;
         private readonly IMapper _mapper;
@@ -34,11 +34,15 @@ namespace CodelineAirlines.Services
         }
         public void Register(UserInputDTOs userInput)
         {
-     
+
             User NewUser = _mapper.Map<User>(userInput);
             _userrepo.AddUser(NewUser);
-        
+
 
         }
+
+
+
+
     }
 }
