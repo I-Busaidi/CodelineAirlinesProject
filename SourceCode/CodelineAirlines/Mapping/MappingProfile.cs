@@ -13,7 +13,8 @@ namespace CodelineAirlines.Mapping
             CreateMap<AirplaneCreateDTO, Airplane>();
             CreateMap<Airplane, AirplaneOutputDto>()
                 .ForMember(dest => dest.AirportName, opt => opt.MapFrom(src => src.Airport.AirportName)); // Mapping the Airport Name
-            CreateMap<UserInputDTOs, User>();   
+            CreateMap<UserInputDTOs, User>()
+              .ForMember(dest => dest.Password, opt => opt.Ignore()); // Ignore password by default
             CreateMap<Airport, AirportOutputDTO>();
             CreateMap<GenerateSeatTemplateDto, SeatTemplate>();
         }

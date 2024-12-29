@@ -24,6 +24,8 @@ namespace CodelineAirlines
             builder.Services.AddScoped<IAirportService, AirportService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUserService,UserService>();
+            builder.Services.AddScoped<IPassengerRepository,PassengerRepository>();
+            builder.Services.AddScoped<IPassengerService, PassengerService>();
             builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
             builder.Services.AddScoped<IAirplaneRepository, AirplaneRepository>();
             builder.Services.AddScoped<IAirplaneService, AirplaneService>();
