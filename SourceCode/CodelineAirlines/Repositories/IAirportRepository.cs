@@ -6,5 +6,6 @@ namespace CodelineAirlines.Repositories
     {
         string AddAirport(Airport airport);
         IEnumerable<Airport> GetAllAirports();
+        Airport GetAirportByName(string name);
     }
 }
