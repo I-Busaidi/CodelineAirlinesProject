@@ -40,21 +40,17 @@ namespace CodelineAirlines.Services
         public void Register(UserInputDTOs userInput)
         {
 
-            User NewUser = _mapper.Map<User>(userInput);
-
-            if (string.IsNullOrEmpty(NewUser.UserEmail))
-            {
-                throw new Exception("UserEmail is null or empty");
-            }
-            _userrepo.AddUser(NewUser);
             if (string.IsNullOrEmpty(userInput.Password))
             {
                 throw new Exception("Password is null or empty");
             }
-
+            User NewUser = _mapper.Map<User>(userInput);
+            if (string.IsNullOrEmpty(NewUser.UserEmail))
+            {
+                throw new Exception("UserEmail is null or empty");
+            }
             // Hash the password
             NewUser.Password = HashPassword(userInput.Password);
-
             // Add the user to the repository
             _userrepo.AddUser(NewUser);
 
@@ -83,7 +79,9 @@ namespace CodelineAirlines.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
         public string login(string email, string password)
-        {// Hash the entered password
+        {
+            
+            // Hash the entered password
             string HashedPassword = HashPassword(password);
             var user = _userrepo.GetUserForLogin(email, HashedPassword);
             if (user == null)

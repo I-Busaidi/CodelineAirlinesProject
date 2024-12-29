@@ -23,7 +23,7 @@ namespace CodelineAirlines.Repositories
         {
             return _context.Airplanes
                 .Include(a => a.Airport)
-                           .FirstOrDefault(a => a.AirplaneId == id);
+                .FirstOrDefault(a => a.AirplaneId == id);
         }
 
         public List<Airplane> GetAll()
@@ -31,6 +31,22 @@ namespace CodelineAirlines.Repositories
             return _context.Airplanes // Retrieve all airplanes synchronously
              .Include(a => a.Airport)
              .ToList();
+        }
+
+        // This method updates an existing airplane's details.
+        public void Update(Airplane airplane)
+        {
+            _context.Airplanes.Update(airplane);  // Updates the entity in the context
+
+            _context.SaveChanges();
+        }
+
+        // Delete an existing airplane
+        public void Delete(Airplane airplane)
+        {
+            _context.Airplanes.Remove(airplane);  // Remove the airplane from the context
+
+            _context.SaveChanges();
         }
     }
 }
