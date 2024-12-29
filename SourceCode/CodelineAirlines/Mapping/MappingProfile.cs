@@ -8,6 +8,7 @@ namespace CodelineAirlines.Mapping
         public MappingProfile() 
         {
             CreateMap<AirportInputDTO, Airport>();
+            CreateMap<Airport, AirportOutputDTO>();
         }
     }
 }
