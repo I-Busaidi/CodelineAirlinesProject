@@ -69,5 +69,19 @@ namespace CodelineAirlines.Controllers
 
             return NoContent();  // Return 204 No Content if the update was successful
         }
+
+        // Endpoint to delete an airplane
+        [HttpDelete("{id}")]
+        public IActionResult DeleteAirplane(int id)
+        {
+            var success = _airplaneService.DeleteAirplane(id);
+
+            if (!success)
+            {
+                return NotFound();  // Return 404 if airplane not found
+            }
+
+            return NoContent();  // Return 204 No Content if the delete was successful
+        }
     }
 }

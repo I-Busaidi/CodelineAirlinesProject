@@ -40,5 +40,13 @@ namespace CodelineAirlines.Repositories
 
             _context.SaveChanges();
         }
+
+        // Delete an existing airplane
+        public void Delete(Airplane airplane)
+        {
+            _context.Airplanes.Remove(airplane);  // Remove the airplane from the context
+
+            _context.SaveChanges();
+        }
     }
 }
