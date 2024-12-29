@@ -9,5 +9,6 @@ namespace CodelineAirlines.Repositories
         Airport GetAirportByName(string name);
         int UpdateAirport(Airport airport);
         Airport GetAirportById(int id);
+        void DeleteAirport(Airport airport);
     }
 }

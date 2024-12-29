@@ -98,5 +98,23 @@ namespace CodelineAirlines.Controllers
                 return BadRequest(ex.InnerException.Message);
             }
         }
+
+        [HttpDelete("DeleteAirport/{airportId}")]
+        public IActionResult DeleteAirport(int airportId)
+        {
+            try
+            {
+                _airportService.DeleteAirport(airportId);
+                return Ok();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException.Message);
+            }
+        }
     }
 }

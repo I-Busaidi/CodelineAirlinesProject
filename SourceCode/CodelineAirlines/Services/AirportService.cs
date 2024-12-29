@@ -107,5 +107,26 @@ namespace CodelineAirlines.Services
 
             return _airportRepository.UpdateAirport(airport);
         }
+
+        public void DeleteAirport(int id)
+        {
+            var airport = _airportRepository.GetAirportById(id);
+            if (airport == null)
+            {
+                throw new KeyNotFoundException("Airport could not be found");
+            }
+
+            if (airport.Airplanes.Any(p => p.IsActive))
+            {
+                throw new InvalidOperationException("Airport has active airplanes");
+            }
+
+            if (airport.DestinationFlights.Any(df => df.StatusCode != 10) || airport.SourceFlights.Any(df => df.StatusCode != 10))
+            {
+                throw new InvalidOperationException("Airport has pending flights");
+            }
+
+            _airportRepository.DeleteAirport(airport);
+        }
     }
 }
