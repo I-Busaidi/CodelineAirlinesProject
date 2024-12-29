@@ -20,8 +20,13 @@
 
   <ItemGroup>
     <Folder Include="DTOs\AirplaneDTOs\" />
+    <Folder Include="DTOs\AirplaneDTOs\" />
+    <Folder Include="DTOs\AirplaneDTOs\" />
+    <Folder Include="DTOs\UserDTOs\" />
+    <Folder Include="DTOs\AirplaneDTOs\" />
+    <Folder Include="DTOs\AirplaneDTOs\" />
     <Folder Include="DTOs\FlightDTOs\" />
-    <Folder Include="DTOs\BookingDTOs\" />
+    <Folder Include="Mapping\" />
     <Folder Include="DTOs\ReviewDTOs\" />
     <Folder Include="DTOs\PassengerDTOs\" />
     <Folder Include="Helpers\" />
