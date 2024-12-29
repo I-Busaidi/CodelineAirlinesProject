@@ -57,7 +57,7 @@ namespace CodelineAirlines.Services
             _userrepo.AddUser(NewUser);
 
         }
-        public string GenerateJwtToken(string userId, string username)
+        public string GenerateJwtToken(string userId, string username, string role)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["SecretKey"];
@@ -71,8 +71,11 @@ namespace CodelineAirlines.Services
             {
         new Claim(JwtRegisteredClaimNames.Sub, userId),
         new Claim(JwtRegisteredClaimNames.UniqueName, username),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-    };
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+           new Claim(ClaimTypes.Role, role), // Adding the role claim
+           new Claim(ClaimTypes.NameIdentifier, userId)
+
+            };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -101,7 +104,7 @@ namespace CodelineAirlines.Services
 
             else
             {
-                return GenerateJwtToken(user.UserId.ToString(), user.UserName);
+                return GenerateJwtToken(user.UserId.ToString(), user.UserName,user.UserRole);
             }
         }
 
