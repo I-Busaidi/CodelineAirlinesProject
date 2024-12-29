@@ -24,9 +24,22 @@ namespace CodelineAirlines.Repositories
             return _context.Airports;
         }
 
+        public Airport GetAirportById(int id)
+        {
+            return _context.Airports.Find(id);
+        }
+
         public Airport GetAirportByName(string name)
         {
             return _context.Airports.FirstOrDefault(ap => ap.AirportName == name);
+        }
+
+        public int UpdateAirport(Airport airport)
+        {
+            _context.Airports.Update(airport);
+            _context.SaveChanges();
+
+            return airport.AirportId;
         }
     }
 }

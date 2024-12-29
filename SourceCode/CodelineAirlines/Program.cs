@@ -29,6 +29,8 @@ namespace CodelineAirlines
             builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
             builder.Services.AddScoped<IAirplaneRepository, AirplaneRepository>();
             builder.Services.AddScoped<IAirplaneService, AirplaneService>();
+            builder.Services.AddScoped<ISeatTemplateRepository, SeatTemplateRepository>();
+            builder.Services.AddScoped<ISeatTemplateService, SeatTemplateService>();
             builder.Services.AddControllers();
 
             // Add JWT Authentication

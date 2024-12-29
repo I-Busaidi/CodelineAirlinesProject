@@ -17,6 +17,7 @@ namespace CodelineAirlines.Mapping
             CreateMap<UserInputDTOs, User>()
               .ForMember(dest => dest.Password, opt => opt.Ignore()); // Ignore password by default
             CreateMap<Airport, AirportOutputDTO>();
+            CreateMap<GenerateSeatTemplateDto, SeatTemplate>();
             CreateMap<PassengerInputDTOs, Passenger>();
             CreateMap<Passenger, PassengerOutputDTO>();
         }

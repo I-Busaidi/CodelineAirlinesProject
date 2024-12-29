@@ -80,5 +80,23 @@ namespace CodelineAirlines.Controllers
                 return BadRequest(ex.InnerException.Message);
             }
         }
+
+        [HttpPut("UpdateAirportInfo/{airportId}")]
+        public IActionResult UpdateAirport(int airportId, [FromBody] AirportInputDTO airportInput)
+        {
+            try
+            {
+                int updatedAirportId = _airportService.UpdateAirport(airportInput, airportId);
+                return Ok(updatedAirportId);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException.Message);
+            }
+        }
     }
 }

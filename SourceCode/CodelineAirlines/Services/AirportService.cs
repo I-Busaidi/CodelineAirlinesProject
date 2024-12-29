@@ -70,5 +70,42 @@ namespace CodelineAirlines.Services
 
             return _mapper.Map<AirportOutputDTO>(airport);
         }
+
+        public int UpdateAirport (AirportInputDTO airportInput, int id)
+        {
+            var airport = _airportRepository.GetAirportById(id);
+            if (airport == null)
+            {
+                throw new KeyNotFoundException("Could not find airport");
+            }
+
+            if (string.IsNullOrWhiteSpace(airportInput.AirportName))
+            {
+                throw new InvalidOperationException("Airport name cannot be empty");
+            }
+
+            if (string.IsNullOrWhiteSpace(airportInput.Country))
+            {
+                throw new InvalidOperationException("Airport country cannot be empty");
+            }
+
+            if (string.IsNullOrWhiteSpace(airportInput.City))
+            {
+                throw new InvalidOperationException("Airport city cannot be empty");
+            }
+
+            var airportNameCheck = _airportRepository.GetAirportByName(airportInput.AirportName);
+
+            if (airportNameCheck != null && airportNameCheck.AirportId != airport.AirportId)
+            {
+                throw new InvalidOperationException("Airport name is already used by another airport");
+            }
+
+            airport.AirportName = airportInput.AirportName;
+            airport.Country = airportInput.Country;
+            airport.City = airportInput.City;
+
+            return _airportRepository.UpdateAirport(airport);
+        }
     }
 }
