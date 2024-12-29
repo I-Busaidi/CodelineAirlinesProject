@@ -32,12 +32,21 @@ namespace CodelineAirlines.Services
 
             if (airplane == null)
             {
-                return null; // Return null or handle not found as per your logic
+                return null;
             }
 
             var airplaneDto = _mapper.Map<AirplaneOutputDto>(airplane);
 
             return airplaneDto;
+        }
+
+        // Retrieve all airplanes and map them to AirplaneOutputDto
+        public List<AirplaneOutputDto> GetAll()
+        {
+            var airplanes = _airplaneRepository.GetAll();  // Fetch airplanes from the repository
+
+            // Use AutoMapper to map the list of Airplanes to AirplaneOutputDto
+            return _mapper.Map<List<AirplaneOutputDto>>(airplanes);
         }
     }
 }

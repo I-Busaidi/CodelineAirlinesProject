@@ -41,5 +41,19 @@ namespace CodelineAirlines.Controllers
 
             return Ok(airplaneDto); // Return the AirplaneOutputDto as JSON response
         }
+
+        // Endpoint to get all airplanes
+        [HttpGet]
+        public IActionResult GetAllAirplanes()
+        {
+            var airplaneDtos = _airplaneService.GetAll();  // Get all airplanes via service
+
+            if (airplaneDtos == null || !airplaneDtos.Any())
+            {
+                return NotFound();  // Return 404 if no airplanes are found
+            }
+
+            return Ok(airplaneDtos);  // Return the list of airplane DTOs as a JSON response
+        }
     }
 }

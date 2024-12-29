@@ -1,4 +1,5 @@
 ﻿using CodelineAirlines.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CodelineAirlines.Repositories
 {
@@ -16,6 +17,11 @@ namespace CodelineAirlines.Repositories
             _context.Airports.Add(airport);
             _context.SaveChanges();
             return airport.AirportName;
+        }
+
+        public IEnumerable<Airport> GetAllAirports()
+        {
+            return _context.Airports;
         }
     }
 }
