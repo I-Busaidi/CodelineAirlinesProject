@@ -10,5 +10,6 @@ namespace CodelineAirlines.Services
         int UpdateAirport(AirportInputDTO airportInput, int id);
         void DeleteAirport(int id);
         int DeactivateAirport(int id);
+        int ReactivateAirport(int id);
     }
 }

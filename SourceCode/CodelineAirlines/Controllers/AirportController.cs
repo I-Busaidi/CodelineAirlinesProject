@@ -117,6 +117,24 @@ namespace CodelineAirlines.Controllers
             }
         }
 
+        [HttpPatch("ReactivateAirport/{airportId}")]
+        public IActionResult ReactivateAirport(int airportId)
+        {
+            try
+            {
+                int reactivatedAirportId = _airportService.ReactivateAirport(airportId);
+                return Ok(reactivatedAirportId);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException.Message);
+            }
+        }
+
         [HttpDelete("DeleteAirport/{airportId}")]
         public IActionResult DeleteAirport(int airportId)
         {

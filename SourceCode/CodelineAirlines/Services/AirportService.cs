@@ -130,7 +130,22 @@ namespace CodelineAirlines.Services
             return _airportRepository.UpdateAirport(airport);
         }
 
+        public int ReactivateAirport(int id)
+        {
+            var airport = _airportRepository.GetAirportById(id);
+            if (airport == null)
+            {
+                throw new KeyNotFoundException("Airport could not be found");
+            }
 
+            if (airport.IsActive)
+            {
+                throw new InvalidOperationException("Airport is already active");
+            }
+
+            airport.IsActive = true;
+            return _airportRepository.UpdateAirport(airport);
+        }
 
         public void DeleteAirport(int id)
         {
