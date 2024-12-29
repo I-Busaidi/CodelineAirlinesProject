@@ -32,6 +32,33 @@ namespace CodelineAirlines.Repositories
         {
             return _context.Users.FirstOrDefault(a => a.UserId == id);
         }
-       
+
+        public void UpdateUser(User user, int id)
+        {
+            {
+
+                var currenruser = GetById(id);
+                if (currenruser != null)
+                {
+                    currenruser.UserName = user.UserName;
+                    currenruser.UserEmail = user.UserEmail;
+                    currenruser.Password = user.Password;
+
+
+                    _context.Users.Update(currenruser);
+                    _context.SaveChanges();
+                }
+            }
+        }
+        public void Delete(int id)
+        {
+            var user = GetById(id);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                _context.SaveChanges();
+            }
+        }
+
     }
 }
