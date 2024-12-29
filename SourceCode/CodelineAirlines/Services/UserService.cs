@@ -3,6 +3,9 @@ using CodelineAirlines.DTOs.AirportDTOs;
 using CodelineAirlines.DTOs.UserDTOs;
 using CodelineAirlines.Models;
 using CodelineAirlines.Repositories;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -12,11 +15,13 @@ namespace CodelineAirlines.Services
     {
         private readonly IUserRepository _userrepo;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
-        public UserService(IUserRepository userrepo, IMapper mapper)
+        public UserService(IUserRepository userrepo, IMapper mapper, IConfiguration configuration)
         {
             _userrepo = userrepo;
             _mapper = mapper;
+            _configuration = configuration;
         }
 
         private string HashPassword(string password)
@@ -39,6 +44,43 @@ namespace CodelineAirlines.Services
             _userrepo.AddUser(NewUser);
 
 
+        }
+        public string GenerateJwtToken(string userId, string username)
+        {
+            var jwtSettings = _configuration.GetSection("JwtSettings");
+            var secretKey = jwtSettings["SecretKey"];
+
+            var claims = new[]
+            {
+        new Claim(JwtRegisteredClaimNames.Sub, userId),
+        new Claim(JwtRegisteredClaimNames.UniqueName, username),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                     };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(jwtSettings["ExpiryInMinutes"])),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        public string login(string email, string password)
+        {
+            string HashedPassword = HashPassword(password);
+            var user = _userrepo.GetUserForLogin(email, HashedPassword);
+            if (user == null)
+            {
+                return null;
+            }
+
+            else
+            {
+                return GenerateJwtToken(user.UserId.ToString(), user.UserName);
+            }
         }
 
 
