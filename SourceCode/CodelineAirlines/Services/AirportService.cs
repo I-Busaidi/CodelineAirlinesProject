@@ -54,5 +54,21 @@ namespace CodelineAirlines.Services
             var airportsOutput = _mapper.Map<List<AirportOutputDTO>>(airports);
             return airportsOutput;
         }
+
+        public AirportOutputDTO GetAirportByName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException("Invalid name");
+            }
+
+            var airport = _airportRepository.GetAirportByName(name);
+            if (airport == null)
+            {
+                throw new KeyNotFoundException("Could not find airport");
+            }
+
+            return _mapper.Map<AirportOutputDTO>(airport);
+        }
     }
 }
