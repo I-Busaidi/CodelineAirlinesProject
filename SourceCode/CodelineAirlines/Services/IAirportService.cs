@@ -6,5 +6,6 @@ namespace CodelineAirlines.Services
     {
         string AddAirport(AirportInputDTO airportInputDTO);
         List<AirportOutputDTO> GetAllAirports();
+        AirportOutputDTO GetAirportByName(string name);
     }
 }

@@ -62,5 +62,23 @@ namespace CodelineAirlines.Controllers
                 return BadRequest(ex.InnerException);
             }
         }
+
+        [HttpGet("GetAirportByName/{name}")]
+        public IActionResult GetAirportByName(string name)
+        {
+            try
+            {
+                var airport = _airportService.GetAirportByName(name);
+                return Ok(airport);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException.Message);
+            }
+        }
     }
 }

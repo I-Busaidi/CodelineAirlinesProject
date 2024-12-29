@@ -67,5 +67,21 @@ namespace CodelineAirlines.Services
 
             return true;  // Successfully updated
         }
+
+        // Delete an airplane's details
+        public bool DeleteAirplane(int id)
+        {
+            var airplane = _airplaneRepository.GetById(id);
+
+            if (airplane == null)
+            {
+                return false;  // Airplane not found
+            }
+
+            // Delete the airplane from the repository
+            _airplaneRepository.Delete(airplane);
+
+            return true;  // Successfully deleted
+        }
     }
 }
