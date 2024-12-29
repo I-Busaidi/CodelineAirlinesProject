@@ -23,5 +23,15 @@ namespace CodelineAirlines.Repositories
                 throw new Exception(ex.InnerException.Message);
             }
         }
+        public User GetUserForLogin(string email, string password)
+        {
+            return _context.Users.Where(u => u.UserName == email & u.Password == password).FirstOrDefault();
+
+        }
+        public User GetById(int id)
+        {
+            return _context.Users.FirstOrDefault(a => a.UserId == id);
+        }
+       
     }
 }
