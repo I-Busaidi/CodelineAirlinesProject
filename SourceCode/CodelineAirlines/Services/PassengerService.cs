@@ -49,6 +49,17 @@ namespace CodelineAirlines.Services
             _passengerRepository.AddPassenger(passenger);
         }
 
+        public PassengerOutputDTO GetPassengerProfile(int userId)
+        {
+            // Get the passenger from the repository
+            var passenger = _passengerRepository.GetPassengerByUserId(userId);
+
+            // Map the Passenger entity to the PassengerDTO
+            var passengerDTO = _mapper.Map<PassengerOutputDTO>(passenger);
+
+            return passengerDTO;
+        }
+
 
     }
 }

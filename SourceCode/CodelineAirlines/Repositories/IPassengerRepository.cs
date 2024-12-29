@@ -6,5 +6,6 @@ namespace CodelineAirlines.Repositories
     {
         void AddPassenger(Passenger passenger);
         bool PassengerExistsForUser(int userId);
+        Passenger GetPassengerByUserId(int userId);
     }
 }

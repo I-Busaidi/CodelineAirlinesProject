@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CodelineAirlines.DTOs.AirplaneDTOs;
 using CodelineAirlines.DTOs.AirportDTOs;
+using CodelineAirlines.DTOs.PassengerDTOs;
 using CodelineAirlines.DTOs.UserDTOs;
 using CodelineAirlines.Models;
 namespace CodelineAirlines.Mapping
@@ -16,6 +17,8 @@ namespace CodelineAirlines.Mapping
             CreateMap<UserInputDTOs, User>()
               .ForMember(dest => dest.Password, opt => opt.Ignore()); // Ignore password by default
             CreateMap<Airport, AirportOutputDTO>();
+            CreateMap<PassengerInputDTOs, Passenger>();
+            CreateMap<Passenger, PassengerOutputDTO>();
         }
     }
 }
