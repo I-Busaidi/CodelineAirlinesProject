@@ -30,5 +30,45 @@ namespace CodelineAirlines.Repositories
             return passenger;
         }
 
+        public void UpdatePassenger(Passenger passenger)
+        {
+            // Find the passenger to update
+            var existingPassenger = _context.Passengers
+                .FirstOrDefault(p => p.UserId == passenger.UserId);
+
+            if (existingPassenger != null)
+            {
+                // Update the passenger properties
+                existingPassenger.Passport = passenger.Passport;
+                existingPassenger.Gender = passenger.Gender;
+                existingPassenger.BirthDate = passenger.BirthDate;
+                existingPassenger.Nationality = passenger.Nationality;
+                existingPassenger.LoyaltyPoints = passenger.LoyaltyPoints;
+
+                // Update the passenger in the context
+                _context.Passengers.Update(existingPassenger);
+                _context.SaveChanges();
+            }
+            else
+            {
+                throw new InvalidOperationException("Passenger profile not found.");
+            }
+        }
+
+        public int GetLoyaltyPointsByUserId(int userId)
+        {
+            // Find the passenger by UserId
+            var passenger = _context.Passengers.FirstOrDefault(p => p.UserId == userId);
+
+            // If no passenger profile is found, throw an exception
+            if (passenger == null)
+            {
+                throw new InvalidOperationException("Passenger profile not found.");
+            }
+
+            return passenger.LoyaltyPoints;
+        }
+
+
     }
 }
