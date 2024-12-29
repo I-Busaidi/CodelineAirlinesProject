@@ -19,5 +19,14 @@ namespace CodelineAirlines.Repositories
 
             _context.SaveChanges();
         }
+
+        // Retrieves seat templates by airplane model name, ordered by SeatCost in descending order
+        public IEnumerable<SeatTemplate> GetSeatTemplatesByModel(string airplaneModel)
+        {
+            return _context.SeatTemplates
+                .Where(st => st.AirplaneModel == airplaneModel)  // Filter by AirplaneModel
+                .OrderByDescending(st => st.SeatCost)  // Order by SeatCost in descending order
+                .ToList();  // Execute the query and return the result as a list
+        }
     }
 }
