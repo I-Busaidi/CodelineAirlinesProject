@@ -59,7 +59,20 @@ namespace CodelineAirlines.Services
 
             return passengerDTO;
         }
+        public void UpdatePassengerDetails(int userId, PassengerInputDTOs passengerInputDTO)
+        {
+            // Map the DTO to the Passenger entity
+            var passenger = _mapper.Map<Passenger>(passengerInputDTO);
+            passenger.UserId = userId;  // Ensure that the UserId is set correctly
 
+            // Update passenger details
+            _passengerRepository.UpdatePassenger(passenger);
+        }
+        public int GetLoyaltyPoints(int userId)
+        {
+  
+            return _passengerRepository.GetLoyaltyPointsByUserId(userId);
+        }
 
     }
 }
