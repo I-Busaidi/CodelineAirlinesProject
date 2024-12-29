@@ -84,6 +84,27 @@ namespace CodelineAirlines.Controllers
                 return StatusCode(500, new { Message = "An error occurred while updating the user.", Error = ex.Message });
             }
         }
+        [HttpDelete("DeactivateUser/{id}")]
+        public IActionResult DeactivateUser(int id)
+        {
+            try
+            {
+                _userService.DeactivateUser(id);
+                return Ok(new { Message = "User deactivated successfully." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while deactivating the user.", Error = ex.Message });
+            }
+        }
 
 
     }

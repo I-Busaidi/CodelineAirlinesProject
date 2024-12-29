@@ -152,6 +152,21 @@ namespace CodelineAirlines.Services
             _userrepo.UpdateUser(currentUser);
         }
 
+        public void DeactivateUser(int userId)
+        {
+            var user = _userrepo.GetById(userId);
+            if (user == null)
+            {
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
+            }
+
+            if (!user.isActive)
+            {
+                throw new InvalidOperationException("User is already deactivated.");
+            }
+
+            _userrepo.DeactivateUser(userId);
+        }
 
 
 

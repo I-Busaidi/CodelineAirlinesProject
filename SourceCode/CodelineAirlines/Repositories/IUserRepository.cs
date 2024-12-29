@@ -9,5 +9,6 @@ namespace CodelineAirlines.Repositories
         User GetById(int id);
         User GetUserForLogin(string email, string password);
         void UpdateUser(User user);
+        public void DeactivateUser(int userId);
     }
 }

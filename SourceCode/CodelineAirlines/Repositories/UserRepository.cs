@@ -39,6 +39,19 @@ namespace CodelineAirlines.Repositories
             _context.Users.Update(user);
             _context.SaveChanges();
         }
+
+        public void DeactivateUser(int userId)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
+            if (user == null)
+            {
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
+            }
+
+            user.isActive = false; // Deactivate the user
+            _context.SaveChanges();
+        }
+
         public void Delete(int id)
         {
             var user = GetById(id);

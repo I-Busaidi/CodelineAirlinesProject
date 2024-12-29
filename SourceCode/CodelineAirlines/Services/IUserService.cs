@@ -9,5 +9,6 @@ namespace CodelineAirlines.Services
         public UserOutputDTO GetUserByID(int id);
         public string GenerateJwtToken(string userId, string username);
         public void UpdateUsers(UserInputDTOs userInputDTO, int id);
+        public void DeactivateUser(int userId);
     }
 }
