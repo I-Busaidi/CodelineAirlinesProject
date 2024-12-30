@@ -26,9 +26,8 @@ namespace CodelineAirlines.Controllers
         {
             try
             {
-                // Retrieve the current user's ID from the token (assuming JWT is used)
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-
+                // Retrieve the current user's passport
+                var reviewerPassport = reviewInput.ReviewerPassport;
 
                 // Call the service method to add the Review
                 _reviewService.AddReview(reviewInput);

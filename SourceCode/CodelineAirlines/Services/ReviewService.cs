@@ -23,7 +23,7 @@ namespace CodelineAirlines.Services
 
             Review Newreview = _mapper.Map<Review>(review);
 
-            _reviewRepository.AddReview(Newreview);
+            _reviewRepository.AddReview(Newreview); 
 
         }
     }

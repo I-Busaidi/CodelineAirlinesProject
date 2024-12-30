@@ -5,6 +5,9 @@ namespace CodelineAirlines.DTOs.ReviewDTOs
     public class ReviewInputDTO
     {
         [Required]
+        [StringLength(50, ErrorMessage = "Reviewer Passport number cannot exceed 50 characters.")]
+        public string ReviewerPassport { get; set; }
+        [Required]
         public int FlightNo { get; set; }
 
         [Required]
