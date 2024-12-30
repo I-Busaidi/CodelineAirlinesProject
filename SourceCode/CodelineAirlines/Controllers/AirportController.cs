@@ -1,9 +1,11 @@
 ﻿using CodelineAirlines.DTOs.AirportDTOs;
 using CodelineAirlines.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodelineAirlines.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[Controller]")]
     public class AirportController : ControllerBase
@@ -15,6 +17,7 @@ namespace CodelineAirlines.Controllers
             _airportService = airportService;
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPost("AddAirport")]
         public IActionResult AddAirport([FromBody] AirportInputDTO airportInputDTO)
         {
@@ -81,6 +84,7 @@ namespace CodelineAirlines.Controllers
             }
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPut("UpdateAirportInfo/{airportId}")]
         public IActionResult UpdateAirport(int airportId, [FromBody] AirportInputDTO airportInput)
         {
@@ -88,6 +92,63 @@ namespace CodelineAirlines.Controllers
             {
                 int updatedAirportId = _airportService.UpdateAirport(airportInput, airportId);
                 return Ok(updatedAirportId);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException.Message);
+            }
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpDelete("DeactivateAirport/{airportId}")]
+        public IActionResult DeactivateAirport(int airportId)
+        {
+            try
+            {
+                int deactivatedAirportId = _airportService.DeactivateAirport(airportId);
+                return Ok(deactivatedAirportId);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException.Message);
+            }
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpPatch("ReactivateAirport/{airportId}")]
+        public IActionResult ReactivateAirport(int airportId)
+        {
+            try
+            {
+                int reactivatedAirportId = _airportService.ReactivateAirport(airportId);
+                return Ok(reactivatedAirportId);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException.Message);
+            }
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpDelete("DeleteAirport/{airportId}")]
+        public IActionResult DeleteAirport(int airportId)
+        {
+            try
+            {
+                _airportService.DeleteAirport(airportId);
+                return Ok();
             }
             catch (KeyNotFoundException ex)
             {

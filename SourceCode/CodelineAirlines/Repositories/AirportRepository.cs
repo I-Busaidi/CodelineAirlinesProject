@@ -26,7 +26,11 @@ namespace CodelineAirlines.Repositories
 
         public Airport GetAirportById(int id)
         {
-            return _context.Airports.Find(id);
+            return _context.Airports
+                .Include(ap => ap.Airplanes)
+                .Include(ap => ap.DestinationFlights)
+                .Include(ap => ap.SourceFlights)
+                .FirstOrDefault(ap => ap.AirportId == id);
         }
 
         public Airport GetAirportByName(string name)
@@ -40,6 +44,12 @@ namespace CodelineAirlines.Repositories
             _context.SaveChanges();
 
             return airport.AirportId;
+        }
+
+        public void DeleteAirport(Airport airport)
+        {
+            _context.Airports.Remove(airport);
+            _context.SaveChanges();
         }
     }
 }

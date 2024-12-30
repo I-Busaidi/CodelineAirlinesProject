@@ -1,4 +1,5 @@
 
+using CodelineAirlines.Helpers.WeatherForecast;
 using CodelineAirlines.Mapping;
 using CodelineAirlines.Repositories;
 using CodelineAirlines.Services;
@@ -32,6 +33,9 @@ namespace CodelineAirlines
             builder.Services.AddScoped<ISeatTemplateRepository, SeatTemplateRepository>();
             builder.Services.AddScoped<ISeatTemplateService, SeatTemplateService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
+
+
+            builder.Services.AddHttpClient<WeatherService>(); // Used for weather forecast.
             builder.Services.AddControllers();
 
             // Add JWT Authentication
