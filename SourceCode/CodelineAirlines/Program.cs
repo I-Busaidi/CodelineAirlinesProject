@@ -35,6 +35,8 @@ namespace CodelineAirlines
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
+            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
 
 
             builder.Services.AddHttpClient<WeatherService>(); // Used for weather forecast.

@@ -30,6 +30,12 @@ namespace CodelineAirlines.Repositories
             return passenger;
         }
 
+        public Passenger GetPassengerByPassport(string passportNumber)
+        {
+            // Find the passenger by their passport number
+            return _context.Passengers.FirstOrDefault(p => p.Passport == passportNumber);
+        }
+
         public void UpdatePassenger(Passenger passenger)
         {
             // Find the passenger to update
