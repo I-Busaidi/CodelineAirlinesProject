@@ -18,6 +18,23 @@ namespace CodelineAirlines.Repositories
             _context.SaveChanges();
         }
 
+        public IEnumerable<Booking> GetAllBookings()
+        {
+            return _context.Bookings
+                           .Include(b => b.Flight)
+                           .Include(b => b.Passenger)
+                           .ToList();
+        }
+
+        public IEnumerable<Booking> GetBookingsByPassenger(string passengerPassport)
+        {
+            return _context.Bookings
+                           .Include(b => b.Flight)
+                           .Include(b => b.Passenger)
+                           .Where(b => b.Passenger.Passport == passengerPassport)
+                           .ToList();
+        }
+
         public void UpdateBooking(Booking booking)
         {
             var existingBooking = _context.Bookings.FirstOrDefault(b => b.BookingId == booking.BookingId);

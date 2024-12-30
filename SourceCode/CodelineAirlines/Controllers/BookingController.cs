@@ -41,6 +41,22 @@ namespace CodelineAirlines.Controllers
             }
         }
 
+        // Get bookings endpoint
+        [HttpGet]
+        [Route("get-bookings")]
+        public IActionResult GetBookings([FromQuery] string role, [FromQuery] string passport)
+        {
+            try
+            {
+                var bookings = _bookingService.GetBookings(role, passport);
+                return Ok(bookings);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         // Update booking endpoint
         [HttpPut]
         [Route("update-booking")]

@@ -68,6 +68,23 @@ namespace CodelineAirlines.Services
             return true;
         }
 
+        public IEnumerable<Booking> GetBookings(string userRole, string userPassport = null)
+        {
+            // If the user is an admin, return all bookings
+            if (userRole == "Admin")
+            {
+                return _bookingRepository.GetAllBookings();
+            }
+
+            // If the user is a passenger, return only their bookings
+            if (userRole == "Passenger" && userPassport != null)
+            {
+                return _bookingRepository.GetBookingsByPassenger(userPassport);
+            }
+
+            throw new Exception("Invalid role or missing passport for passenger.");
+        }
+
         public bool UpdateBooking(UpdateBookingDTO bookingDto)
         {
             // Retrieve the existing booking by its ID
