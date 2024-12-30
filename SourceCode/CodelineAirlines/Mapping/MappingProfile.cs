@@ -2,6 +2,7 @@
 using CodelineAirlines.DTOs.AirplaneDTOs;
 using CodelineAirlines.DTOs.AirportDTOs;
 using CodelineAirlines.DTOs.PassengerDTOs;
+using CodelineAirlines.DTOs.ReviewDTOs;
 using CodelineAirlines.DTOs.UserDTOs;
 using CodelineAirlines.Models;
 namespace CodelineAirlines.Mapping
@@ -27,6 +28,8 @@ namespace CodelineAirlines.Mapping
                 .ForMember(dest => dest.Passport, opt => opt.MapFrom(src => src.Passport))
                 .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender))
                 .ForMember(dest => dest.Nationality, opt => opt.MapFrom(src => src.Nationality));
+            //Map from ReviewInputDTO to Review 
+            CreateMap<ReviewInputDTO, Review>();
         }
     }
     
