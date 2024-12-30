@@ -31,6 +31,7 @@ namespace CodelineAirlines
             builder.Services.AddScoped<IAirplaneService, AirplaneService>();
             builder.Services.AddScoped<ISeatTemplateRepository, SeatTemplateRepository>();
             builder.Services.AddScoped<ISeatTemplateService, SeatTemplateService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddControllers();
 
             // Add JWT Authentication
