@@ -38,8 +38,7 @@ namespace CodelineAirlines.Controllers
                 await _emailService.SendEmailAsync(userInputDTO.UserEmail, subject, body);   // Send email
                 return Ok(new { Message = "User added successfully", userInputDTO.UserName});
              
-        
-
+ 
             }
             catch (Exception ex)
             {
