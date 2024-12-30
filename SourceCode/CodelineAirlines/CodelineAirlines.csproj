@@ -21,10 +21,7 @@
 
   <ItemGroup>
     <Folder Include="DTOs\UserDTOs\" />
-    <Folder Include="DTOs\FlightDTOs\" />
-    <Folder Include="Mapping\" />
     <Folder Include="DTOs\ReviewDTOs\" />
-    <Folder Include="Mapping\" />
   </ItemGroup>
 
 </Project>

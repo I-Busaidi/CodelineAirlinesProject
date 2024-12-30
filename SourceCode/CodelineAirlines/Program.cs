@@ -18,20 +18,40 @@ namespace CodelineAirlines
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            // Adding DB Context.
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+            // Adding Airport related services.
             builder.Services.AddScoped<IAirportRepository, AirportRepository>();
             builder.Services.AddScoped<IAirportService, AirportService>();
+
+            // Adding User related services.
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUserService,UserService>();
+
+            // Adding Passenger related services.
             builder.Services.AddScoped<IPassengerRepository,PassengerRepository>();
             builder.Services.AddScoped<IPassengerService, PassengerService>();
-            builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+            
+            // Adding Airplane related servcies.
             builder.Services.AddScoped<IAirplaneRepository, AirplaneRepository>();
             builder.Services.AddScoped<IAirplaneService, AirplaneService>();
+
+            // Adding Seats Template related services.
             builder.Services.AddScoped<ISeatTemplateRepository, SeatTemplateRepository>();
             builder.Services.AddScoped<ISeatTemplateService, SeatTemplateService>();
+
+            // Adding Flight related services.
+            builder.Services.AddScoped<IFlightRepository, FlightRepository>();
+            builder.Services.AddScoped<IFlightService, FlightService>();
+
+            // Adding Compound services.
+            builder.Services.AddScoped<ICompoundService, CompoundService>();
+
+            builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+            //Value Resolvers for AutoMapper
+            builder.Services.AddScoped<SourceAirportNameResolver>();
+            builder.Services.AddScoped<DestinationAirportNameResolver>();
 
 
             builder.Services.AddHttpClient<WeatherService>(); // Used for weather forecast.

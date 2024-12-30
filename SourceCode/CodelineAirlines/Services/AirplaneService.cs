@@ -39,6 +39,18 @@ namespace CodelineAirlines.Services
 
             return airplaneDto;
         }
+        public Airplane GetAirplaneByIdWithRelatedData(int id)
+        {
+            // Retrieve the airplane entity by ID
+            var airplane = _airplaneRepository.GetById(id);
+
+            if (airplane == null)
+            {
+                return null;
+            }
+
+            return airplane;
+        }
 
         // Retrieve all airplanes and map them to AirplaneOutputDto
         public List<AirplaneOutputDto> GetAll()

@@ -1,4 +1,5 @@
 ﻿using CodelineAirlines.DTOs.AirportDTOs;
+using CodelineAirlines.Models;
 
 namespace CodelineAirlines.Services
 {
@@ -11,5 +12,6 @@ namespace CodelineAirlines.Services
         void DeleteAirport(int id);
         int DeactivateAirport(int id);
         int ReactivateAirport(int id);
+        Airport GetAirportByNameWithRelatedData(string name);
     }
 }
