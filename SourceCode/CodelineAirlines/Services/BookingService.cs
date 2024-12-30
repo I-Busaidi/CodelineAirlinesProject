@@ -90,5 +90,26 @@ namespace CodelineAirlines.Services
 
             return true; // Return true if update is successful
         }
+
+        public bool CancelBooking(int bookingId)
+        {
+            // Retrieve the existing booking by ID
+            var booking = _bookingRepository.GetBookingById(bookingId);
+            if (booking == null)
+            {
+                throw new Exception("Booking not found.");
+            }
+
+            // Check if the booking is already canceled
+            if (booking.Status == -1)
+            {
+                throw new Exception("Booking is already canceled.");
+            }
+
+            // Call the repository to cancel the booking
+            _bookingRepository.CancelBooking(bookingId);
+
+            return true;
+        }
     }
 }

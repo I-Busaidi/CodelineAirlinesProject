@@ -44,7 +44,7 @@ namespace CodelineAirlines.Controllers
         // Update booking endpoint
         [HttpPut]
         [Route("update-booking")]
-        public IActionResult UpdateBooking([FromBody] BookingDTO bookingDto)
+        public IActionResult UpdateBooking([FromBody] UpdateBookingDTO bookingDto)
         {
             if (bookingDto == null)
             {
@@ -61,6 +61,27 @@ namespace CodelineAirlines.Controllers
                 }
 
                 return BadRequest("Failed to update the booking.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // Cancel booking endpoint
+        [HttpDelete]
+        [Route("cancel-booking/{bookingId}")]
+        public IActionResult CancelBooking(int bookingId)
+        {
+            try
+            {
+                var result = _bookingService.CancelBooking(bookingId);
+                if (result)
+                {
+                    return Ok("Booking canceled successfully.");
+                }
+
+                return BadRequest("Failed to cancel the booking.");
             }
             catch (Exception ex)
             {

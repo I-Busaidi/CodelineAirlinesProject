@@ -45,5 +45,19 @@ namespace CodelineAirlines.Repositories
                            .Include(b => b.Passenger)
                            .FirstOrDefault(b => b.BookingId == bookingId);
         }
+
+        public void CancelBooking(int bookingId)
+        {
+            var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
+            if (booking != null)
+            {
+                booking.Status = -1; // Assuming -1 indicates canceled status
+                _context.SaveChanges();
+            }
+            else
+            {
+                throw new Exception("Booking not found.");
+            }
+        }
     }
 }
