@@ -40,5 +40,32 @@ namespace CodelineAirlines.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        // Update booking endpoint
+        [HttpPut]
+        [Route("update-booking")]
+        public IActionResult UpdateBooking([FromBody] BookingDTO bookingDto)
+        {
+            if (bookingDto == null)
+            {
+                return BadRequest("Booking data is required.");
+            }
+
+            try
+            {
+                var result = _bookingService.UpdateBooking(bookingDto);
+
+                if (result)
+                {
+                    return Ok("Booking updated successfully.");
+                }
+
+                return BadRequest("Failed to update the booking.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

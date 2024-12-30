@@ -4,7 +4,7 @@ using CodelineAirlines.Repositories;
 
 namespace CodelineAirlines.Services
 {
-    public class BookingService
+    public class BookingService : IBookingService
     {
         private readonly IFlightRepository _flightRepository;
         private readonly IPassengerRepository _passengerRepository;
@@ -66,6 +66,29 @@ namespace CodelineAirlines.Services
             }
 
             return true;
+        }
+
+        public bool UpdateBooking(UpdateBookingDTO bookingDto)
+        {
+            // Retrieve the existing booking by its ID
+            var booking = _bookingRepository.GetBookingById(bookingDto.BookingId);
+            if (booking == null)
+            {
+                throw new Exception("Booking not found.");
+            }
+
+            // Optionally, you can add validation to make sure the booking is not already canceled or completed, etc.
+
+            // Update the booking details
+            booking.SeatNo = bookingDto.SeatNo ?? booking.SeatNo;
+            booking.Meal = bookingDto.Meal ?? booking.Meal;
+            booking.Status = bookingDto.Status;  // Update the status if provided
+            booking.TotalCost = bookingDto.TotalCost; // Update cost if changed
+
+            // Call the repository to save the changes
+            _bookingRepository.UpdateBooking(booking);
+
+            return true; // Return true if update is successful
         }
     }
 }
