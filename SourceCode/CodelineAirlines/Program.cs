@@ -40,6 +40,11 @@ namespace CodelineAirlines
             // Adding Seats Template related services.
             builder.Services.AddScoped<ISeatTemplateRepository, SeatTemplateRepository>();
             builder.Services.AddScoped<ISeatTemplateService, SeatTemplateService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
+            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
 
             // Adding Flight related services.
             builder.Services.AddScoped<IFlightRepository, FlightRepository>();
