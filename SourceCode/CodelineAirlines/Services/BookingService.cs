@@ -9,12 +9,14 @@ namespace CodelineAirlines.Services
         private readonly IFlightRepository _flightRepository;
         private readonly IPassengerRepository _passengerRepository;
         private readonly IBookingRepository _bookingRepository;
+        private readonly IEmailService _emailService;
 
-        public BookingService(IFlightRepository flightRepository, IPassengerRepository passengerRepository, IBookingRepository bookingRepository)
+        public BookingService(IFlightRepository flightRepository, IPassengerRepository passengerRepository, IBookingRepository bookingRepository, IEmailService emailService)
         {
             _flightRepository = flightRepository;
             _passengerRepository = passengerRepository;
             _bookingRepository = bookingRepository;
+            _emailService = emailService;
         }
 
         public bool BookFlight(BookingDTO bookingDto)
@@ -127,6 +129,44 @@ namespace CodelineAirlines.Services
             _bookingRepository.CancelBooking(bookingId);
 
             return true;
+        }
+
+        // Method to send booking confirmation email
+        private void SendBookingConfirmationEmail(Booking booking)
+        {
+            string subject = "Booking Confirmation";
+            string body = $"Dear {booking.User.UserName},<br><br>" +
+                          $"Your booking for Flight {booking.FlightNo} has been confirmed.<br>" +
+                          $"Seat: {booking.SeatNo}<br>" +
+                          $"Total Cost: ${booking.TotalCost}<br>" +
+                          $"We look forward to welcoming you aboard!<br><br>" +
+                          $"Thank you for choosing us!";
+            _emailService.SendEmailAsync(booking.User.UserEmail, subject, body);
+        }
+
+        // Method to send booking update email
+        private void SendBookingUpdateEmail(Booking booking)
+        {
+            string subject = "Booking Update";
+            string body = $"Dear {booking.User.UserName},<br><br>" +
+                          $"Your booking for Flight {booking.FlightNo} has been updated.<br>" +
+                          $"New Seat: {booking.SeatNo}<br>" +
+                          $"New Meal: {booking.Meal}<br>" +
+                          $"New Total Cost: ${booking.TotalCost}<br>" +
+                          $"Thank you for updating your booking with us.";
+            _emailService.SendEmailAsync(booking.User.UserEmail, subject, body);
+        }
+
+        // Method to send booking cancellation email
+        private void SendBookingCancellationEmail(Booking booking)
+        {
+            string subject = "Booking Cancellation";
+            string body = $"Dear {booking.User.UserName},<br><br>" +
+                          $"We regret to inform you that your booking for Flight {booking.FlightNo} has been canceled.<br>" +
+                          $"Seat: {booking.SeatNo}<br>" +
+                          $"Total Cost: ${booking.TotalCost}<br>" +
+                          $"We apologize for any inconvenience caused.";
+            _emailService.SendEmailAsync(booking.User.UserEmail, subject, body);
         }
     }
 }

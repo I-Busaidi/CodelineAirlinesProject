@@ -30,7 +30,7 @@ namespace CodelineAirlines.Controllers
 
                 if (result)
                 {
-                    return Ok("Flight booked successfully.");
+                    return Ok("Flight booked successfully and confirmation email sent.");
                 }
 
                 return BadRequest("Failed to book the flight.");
@@ -73,7 +73,7 @@ namespace CodelineAirlines.Controllers
 
                 if (result)
                 {
-                    return Ok("Booking updated successfully.");
+                    return Ok("Booking updated successfully and email notification sent.");
                 }
 
                 return BadRequest("Failed to update the booking.");
@@ -94,7 +94,7 @@ namespace CodelineAirlines.Controllers
                 var result = _bookingService.CancelBooking(bookingId);
                 if (result)
                 {
-                    return Ok("Booking canceled successfully.");
+                    return Ok("Booking canceled successfully and email notification sent.");
                 }
 
                 return BadRequest("Failed to cancel the booking.");
