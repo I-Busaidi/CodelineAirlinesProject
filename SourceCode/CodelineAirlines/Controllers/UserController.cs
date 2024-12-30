@@ -13,13 +13,15 @@ namespace CodelineAirlines.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        public UserController(IUserService userService)
+        private readonly IEmailService _emailService;
+        public UserController(IUserService userService, IEmailService emailService)
         {
             _userService = userService;
+            _emailService = emailService;
         }
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult AddUser([FromBody] UserInputDTOs userInputDTO)
+        public async Task<IActionResult> AddUser([FromBody] UserInputDTOs userInputDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -30,7 +32,13 @@ namespace CodelineAirlines.Controllers
             {
 
                 _userService.Register(userInputDTO);
+                string subject = "Welcome!";
+                string body = $"Hello, {userInputDTO.UserName} " +
+                            $"Thank you for registering in AirLine Codeline.";//Mesg Email 
+                await _emailService.SendEmailAsync(userInputDTO.UserEmail, subject, body);   // Send email
                 return Ok(new { Message = "User added successfully", userInputDTO.UserName});
+             
+        
 
             }
             catch (Exception ex)
