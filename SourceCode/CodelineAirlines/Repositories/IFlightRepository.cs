@@ -6,5 +6,6 @@ namespace CodelineAirlines.Repositories
     {
         int AddFlight(Flight flight);
         IEnumerable<Flight> GetAllFlights();
+        Flight GetFlightById(int id);
     }
 }

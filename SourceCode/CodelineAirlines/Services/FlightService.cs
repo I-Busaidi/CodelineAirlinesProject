@@ -60,5 +60,16 @@ namespace CodelineAirlines.Services
                 && f.ScheduledDepartureDate < flightInput.ScheduledDepartureDate.Add(flightInput.Duration)
                 && f.ScheduledArrivalDate > flightInput.ScheduledDepartureDate);
         }
+
+        public Flight GetFlightByIdWithRelatedData(int id)
+        {
+            var flight = _flightRepository.GetFlightById(id);
+            if (flight == null)
+            {
+                throw new KeyNotFoundException("Flight could not be found");
+            }
+
+            return flight;
+        }
     }
 }
