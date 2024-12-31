@@ -7,7 +7,8 @@ namespace CodelineAirlines.Services
     {
         bool BookFlight(BookingDTO bookingDto);
         bool CancelBooking(int bookingId);
-        IEnumerable<Booking> GetBookings(string userRole, string userPassport = null);
+        IEnumerable<Booking> GetAllBookingsForAdmin();
+        IEnumerable<Booking> GetBookingsForPassenger(string passport);
         bool UpdateBooking(UpdateBookingDTO bookingDto);
     }
 }
