@@ -90,5 +90,20 @@ namespace CodelineAirlines.Controllers
 
         }
 
+        // Delete a review
+        [HttpDelete("{reviewId}")]
+        public IActionResult DeleteReview(int reviewId)
+        {
+            try
+            {
+                _reviewService.DeleteReview(reviewId);
+                return Ok("Review deleted successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+        }
+
     }
 }

@@ -8,5 +8,6 @@ namespace CodelineAirlines.Services
         void AddReview(ReviewInputDTO review);
         ReviewInputDTO UpdateReview(ReviewInputDTO updatedReview);
         List<Review> GetAllReview();
+        void DeleteReview(int reviewId);
     }
 }

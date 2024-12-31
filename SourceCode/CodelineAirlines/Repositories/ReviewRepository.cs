@@ -43,7 +43,16 @@ namespace CodelineAirlines.Repositories
             return _context.Reviews.ToList();
 
         }
-
+        //delete review 
+        public void DeleteReview(int id)
+        {
+            var review = _context.Reviews.FirstOrDefault(p => p.ReviewId == id);
+            if (review != null)
+            {
+                _context.Reviews.Remove(review);
+                _context.SaveChanges();
+            }
+        }
 
     }
 }

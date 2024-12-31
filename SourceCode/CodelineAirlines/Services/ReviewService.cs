@@ -104,6 +104,23 @@ namespace CodelineAirlines.Services
             return _reviewRepository.GetAllReview();
         }
 
+        // Delete a review (only by the creator)
+        public void DeleteReview(int reviewId)
+        {
+            int userId = GetCurrentUserId();
+            var existingReview = _reviewRepository.GetReviewById(reviewId);
+
+            // Ensure the user is authorized to Delete their own review
+            if (existingReview.Reviewer.UserId != userId)
+            {
+                throw new UnauthorizedAccessException("You can only Delete your own reviews.");
+            }
+
+
+            _reviewRepository.DeleteReview(reviewId);
+
+      
+        }
 
     }
 }
