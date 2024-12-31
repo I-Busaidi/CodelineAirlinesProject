@@ -1,4 +1,5 @@
 ﻿using CodelineAirlines.DTOs.FlightDTOs;
+using CodelineAirlines.Enums;
 using CodelineAirlines.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ namespace CodelineAirlines.Controllers
             _compoundService = compoundService;
         }
 
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         [HttpPost("AddFlight")]
         public IActionResult AddFlight([FromBody] FlightInputDTO flightInput)
         {
@@ -27,6 +28,29 @@ namespace CodelineAirlines.Controllers
             {
                 int newFlightId = _compoundService.AddFlight(flightInput);
                 return Ok(newFlightId);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpPatch("UpdateFlightStatus/{flightNo}")]
+        public IActionResult UpdateFlightStatus(int flightNo, [FromBody] FlightStatusRequest statusRequest)
+        {
+            try
+            {
+                var result = _compoundService.UpdateFlightStatus(flightNo, statusRequest.FlightStatus);
+                return Ok("Status of flight with number " + result.Item1 + " has been updated to " + result.Item2);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (InvalidOperationException ex)
             {

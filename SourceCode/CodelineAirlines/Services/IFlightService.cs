@@ -11,5 +11,6 @@ namespace CodelineAirlines.Services
         Flight GetPriorFlight(int airplaneId);
         bool IsFlightConflicting(FlightInputDTO flightInput);
         Flight GetFlightByIdWithRelatedData(int id);
+        int UpdateFlightStatus(Flight flight);
     }
 }

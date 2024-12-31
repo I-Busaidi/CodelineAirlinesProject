@@ -25,8 +25,7 @@ namespace CodelineAirlines.Repositories
             return _context.Flights
                 .Include(f => f.Airplane)
                 .Include(f => f.SourceAirport)
-                .Include(f => f.DestinationAirport)
-                .Include(f => f.Bookings);
+                .Include(f => f.DestinationAirport);
         }
 
         public int UpdateFlight(Flight flight)

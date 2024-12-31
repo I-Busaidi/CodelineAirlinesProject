@@ -6,14 +6,14 @@ namespace CodelineAirlines.Services
 {
     public class BookingService : IBookingService
     {
-        private readonly IFlightRepository _flightRepository;
+        private readonly IFlightService _flightService;
         private readonly IPassengerRepository _passengerRepository;
         private readonly IBookingRepository _bookingRepository;
         private readonly IEmailService _emailService;
 
-        public BookingService(IFlightRepository flightRepository, IPassengerRepository passengerRepository, IBookingRepository bookingRepository, IEmailService emailService)
+        public BookingService(IFlightService flightService, IPassengerRepository passengerRepository, IBookingRepository bookingRepository, IEmailService emailService)
         {
-            _flightRepository = flightRepository;
+            _flightService = flightService;
             _passengerRepository = passengerRepository;
             _bookingRepository = bookingRepository;
             _emailService = emailService;
@@ -22,7 +22,7 @@ namespace CodelineAirlines.Services
         public bool BookFlight(BookingDTO bookingDto)
         {
             // Retrieve the flight and passenger synchronously
-            var flight = _flightRepository.GetFlightByNo(bookingDto.FlightNo);
+            var flight = _flightService.GetFlightByIdWithRelatedData(bookingDto.FlightNo);
             if (flight == null)
             {
                 throw new Exception("Flight not found.");
@@ -35,7 +35,7 @@ namespace CodelineAirlines.Services
             }
 
             // Check for existing booking for the passenger
-            var existingBooking = flight.Bookings.FirstOrDefault(b => b.Passenger.PassengerPassport == passenger.Passport);
+            var existingBooking = flight.Bookings.FirstOrDefault(b => b.Passenger.Passport == passenger.Passport);
             if (existingBooking != null)
             {
                 throw new Exception("Passenger has already booked this flight.");
@@ -62,7 +62,7 @@ namespace CodelineAirlines.Services
             flight.Bookings.Add(booking);
 
             // Optionally, mark the flight as fully booked if necessary
-            if (flight.Bookings.Count >= flight.Airplane.Capacity)
+            if (flight.Bookings.Count >= 5)
             {
                 flight.StatusCode = 1; // Mark flight as fully booked
             }

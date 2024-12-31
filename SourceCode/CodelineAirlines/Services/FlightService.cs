@@ -61,6 +61,11 @@ namespace CodelineAirlines.Services
                 && f.ScheduledArrivalDate > flightInput.ScheduledDepartureDate);
         }
 
+        public int UpdateFlightStatus(Flight flight)
+        {
+            return _flightRepository.UpdateFlight(flight);
+        }
+
         public Flight GetFlightByIdWithRelatedData(int id)
         {
             var flight = _flightRepository.GetFlightById(id);

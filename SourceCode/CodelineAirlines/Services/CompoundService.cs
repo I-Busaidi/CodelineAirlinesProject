@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CodelineAirlines.DTOs.FlightDTOs;
+using CodelineAirlines.Enums;
 using CodelineAirlines.Models;
 
 namespace CodelineAirlines.Services
@@ -51,6 +52,20 @@ namespace CodelineAirlines.Services
 
             var flight = _mapper.Map<Flight>(flightInput);
             return _flightService.AddFlight(flight);
+        }
+
+        public (int, string) UpdateFlightStatus(int flightId, FlightStatus flightStatus)
+        {
+            var flight = _flightService.GetFlightByIdWithRelatedData(flightId);
+            if (flight == null)
+            {
+                throw new KeyNotFoundException("Could not find flight");
+            }
+
+            flight.StatusCode = (int)flightStatus;
+
+            _flightService.UpdateFlightStatus(flight);
+            return (flight.FlightNo, flightStatus.ToString());
         }
 
         private bool CheckAirplaneAvailability(Airplane airplane, Airport srcAirport, FlightInputDTO flightInput)
