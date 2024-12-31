@@ -37,10 +37,17 @@ namespace CodelineAirlines.Services
             }
 
             // Check for existing booking for the passenger
-            var existingBooking = flight.Bookings.FirstOrDefault(b => b.Passenger.Passport == passenger.Passport);
-            if (existingBooking != null)
+            //var existingBooking = flight.Bookings.FirstOrDefault(b => b.Passenger.Passport == passenger.Passport);
+            //if (existingBooking != null)
+            //{
+            //    throw new Exception("Passenger has already booked this flight.");
+            //}
+
+            // Check if the flight is fully booked
+            int seatCapacity = _seatTemplateService.GetSeatTemplatesByModel(flight.Airplane.AirplaneModel).Count();
+            if (flight.Bookings.Count >= seatCapacity)
             {
-                throw new Exception("Passenger has already booked this flight.");
+                throw new InvalidOperationException("This flight is fully booked");
             }
 
             // Create new booking
@@ -58,21 +65,31 @@ namespace CodelineAirlines.Services
             };
 
             // Save the booking synchronously
-            _bookingRepository.AddBooking(booking);
+            int bookingId = _bookingRepository.AddBooking(booking);
 
             // Add the booking to the flight's bookings collection (in-memory)
             flight.Bookings.Add(booking);
-            int seatCapacity = _seatTemplateService.GetSeatTemplatesByModel(flight.Airplane.AirplaneModel).Count();
-            // Optionally, mark the flight as fully booked if necessary
-            if (flight.Bookings.Count >= seatCapacity)
-            {
-                throw new InvalidOperationException("This flight is fully booked");
-            }
 
-            SendBookingConfirmationEmail(booking);
+            // Add loyalty points to the passenger's account
+            IncreaseLoyaltyPoints(passenger, flight.Cost);
+
+            // Save the updated passenger with the new loyalty points
+            _passengerRepository.UpdatePassenger(passenger);
+
+            // Send booking confirmation email
+            SendBookingConfirmationEmail(bookingId);  // Pass the booking object to the email method
 
             return true;
         }
+
+        // Method to increase loyalty points based on flight cost (you can adjust the logic here)
+        private void IncreaseLoyaltyPoints(Passenger passenger, decimal flightCost)
+        {
+            // For example, give 1 loyalty point per $100 spent on the flight
+            int pointsEarned = (int)(flightCost / 100);
+            passenger.LoyaltyPoints += pointsEarned;
+        }
+
 
         public IEnumerable<Booking> GetBookings(string userRole, string userPassport = null)
         {
@@ -100,19 +117,15 @@ namespace CodelineAirlines.Services
                 throw new Exception("Booking not found.");
             }
 
-            // Optionally, you can add validation to make sure the booking is not already canceled or completed, etc.
-
             // Update the booking details
             booking.SeatNo = bookingDto.SeatNo ?? booking.SeatNo;
             booking.Meal = bookingDto.Meal ?? booking.Meal;
-            booking.Status = bookingDto.Status;  // Update the status if provided
-            booking.TotalCost = bookingDto.TotalCost; // Update cost if changed
 
             // Call the repository to save the changes
             _bookingRepository.UpdateBooking(booking);
 
             // Send email about the update
-            SendBookingUpdateEmail(booking);
+            SendBookingUpdateEmail(booking.BookingId);  // Pass the booking object to the email method
 
             return true; // Return true if update is successful
         }
@@ -126,57 +139,53 @@ namespace CodelineAirlines.Services
                 throw new Exception("Booking not found.");
             }
 
-            // Check if the booking is already canceled
-            if (booking.Status == -1)
-            {
-                throw new Exception("Booking is already canceled.");
-            }
-
             // Call the repository to cancel the booking
             _bookingRepository.CancelBooking(bookingId);
 
             // Send email about the cancellation
-            SendBookingCancellationEmail(booking);
+            SendBookingCancellationEmail(booking);  // Pass the booking object to the email method
 
             return true;
         }
 
         // Method to send booking confirmation email
-        private void SendBookingConfirmationEmail(Booking booking)
+        private void SendBookingConfirmationEmail(int bookingId)
         {
+            var booking = _bookingRepository.GetBookingById(bookingId);
             string subject = "Booking Confirmation";
-            string body = $"Dear {booking.User.UserName},<br><br>" +
-                          $"Your booking for Flight {booking.FlightNo} has been confirmed.<br>" +
-                          $"Seat: {booking.SeatNo}<br>" +
-                          $"Total Cost: ${booking.TotalCost}<br>" +
-                          $"We look forward to welcoming you aboard!<br><br>" +
+            string body = $"Dear {booking.Passenger.User.UserName}\n" +
+                          $"Your booking for Flight {booking.FlightNo} has been confirmed.\n" +
+                          $"Seat: {booking.SeatNo}" +
+                          $"Total Cost: ${booking.TotalCost}\n" +
+                          $"We look forward to welcoming you aboard!\n" +
                           $"Thank you for choosing us!";
-            _emailService.SendEmailAsync(booking.User.UserEmail, subject, body);
+            _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
         }
 
         // Method to send booking update email
-        private void SendBookingUpdateEmail(Booking booking)
+        private void SendBookingUpdateEmail(int bookingId)
         {
+            var booking = _bookingRepository.GetBookingById(bookingId);
             string subject = "Booking Update";
-            string body = $"Dear {booking.User.UserName},<br><br>" +
-                          $"Your booking for Flight {booking.FlightNo} has been updated.<br>" +
-                          $"New Seat: {booking.SeatNo}<br>" +
-                          $"New Meal: {booking.Meal}<br>" +
-                          $"New Total Cost: ${booking.TotalCost}<br>" +
+            string body = $"Dear {booking.Passenger.User.UserName},\n" +
+                          $"Your booking for Flight {booking.FlightNo} has been updated.\n" +
+                          $"New Seat: {booking.SeatNo}\n" +
+                          $"New Meal: {booking.Meal}\n" +
+                          $"New Total Cost: ${booking.TotalCost}\n" +
                           $"Thank you for updating your booking with us.";
-            _emailService.SendEmailAsync(booking.User.UserEmail, subject, body);
+            _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
         }
 
         // Method to send booking cancellation email
         private void SendBookingCancellationEmail(Booking booking)
         {
             string subject = "Booking Cancellation";
-            string body = $"Dear {booking.User.UserName},<br><br>" +
-                          $"We regret to inform you that your booking for Flight {booking.FlightNo} has been canceled.<br>" +
-                          $"Seat: {booking.SeatNo}<br>" +
-                          $"Total Cost: ${booking.TotalCost}<br>" +
+            string body = $"Dear {booking.Passenger.User.UserName},\n" +
+                          $"We regret to inform you that your booking for Flight {booking.FlightNo} has been canceled.\n" +
+                          $"Seat: {booking.SeatNo}\n" +
+                          $"Total Cost: ${booking.TotalCost}\n" +
                           $"We apologize for any inconvenience caused.";
-            _emailService.SendEmailAsync(booking.User.UserEmail, subject, body);
+            _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
         }
     }
 }

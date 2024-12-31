@@ -12,10 +12,12 @@ namespace CodelineAirlines.Repositories
             _context = context;
         }
 
-        public void AddBooking(Booking booking)
+        public int AddBooking(Booking booking)
         {
             _context.Bookings.Add(booking);
             _context.SaveChanges();
+
+            return booking.BookingId;
         }
 
         public IEnumerable<Booking> GetAllBookings()
@@ -23,6 +25,7 @@ namespace CodelineAirlines.Repositories
             return _context.Bookings
                            .Include(b => b.Flight)
                            .Include(b => b.Passenger)
+                           .ThenInclude(b => b.User)
                            .ToList();
         }
 
@@ -31,6 +34,7 @@ namespace CodelineAirlines.Repositories
             return _context.Bookings
                            .Include(b => b.Flight)
                            .Include(b => b.Passenger)
+                           .ThenInclude(b => b.User)
                            .Where(b => b.Passenger.Passport == passengerPassport)
                            .ToList();
         }
@@ -60,6 +64,7 @@ namespace CodelineAirlines.Repositories
             return _context.Bookings
                            .Include(b => b.Flight)
                            .Include(b => b.Passenger)
+                           .ThenInclude(b => b.User)
                            .FirstOrDefault(b => b.BookingId == bookingId);
         }
 
@@ -68,7 +73,7 @@ namespace CodelineAirlines.Repositories
             var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
             if (booking != null)
             {
-                booking.Status = -1; // Assuming -1 indicates canceled status
+                _context.Bookings.Remove(booking);
                 _context.SaveChanges();
             }
             else
