@@ -22,7 +22,7 @@ namespace CodelineAirlines.Controllers
         }
 
         [HttpPost("AddReview")]
-        public IActionResult AddPassenger([FromQuery] ReviewInputDTO reviewInput)
+        public IActionResult AddReview([FromQuery] ReviewInputDTO reviewInput)
         {
             try
             {   //Check here after done-----------------------------------
@@ -74,6 +74,21 @@ namespace CodelineAirlines.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult GetAllFlighitsReviews()
+        {
+            try
+            {
+                var reviews = _reviewService.GetAllReview();
+                return Ok(reviews);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+
+        }
 
     }
 }

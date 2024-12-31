@@ -7,5 +7,6 @@ namespace CodelineAirlines.Repositories
         string AddReview(Review review);
         Review GetReviewById(int id);
         void UpdateReview(Review updatedReview);
+        List<Review> GetAllReview();
     }
 }

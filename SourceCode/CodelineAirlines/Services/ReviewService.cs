@@ -98,5 +98,12 @@ namespace CodelineAirlines.Services
                 throw new ApplicationException("An unexpected error occurred: " + ex.Message, ex);
             }
         }
+       public List<Review> GetAllReview()
+        {
+
+            return _reviewRepository.GetAllReview();
+        }
+
+
     }
 }

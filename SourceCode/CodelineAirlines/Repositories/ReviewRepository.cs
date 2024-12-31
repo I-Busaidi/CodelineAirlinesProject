@@ -38,7 +38,11 @@ namespace CodelineAirlines.Repositories
         {
             return _context.Reviews.FirstOrDefault(p => p.ReviewId == id);
         }
+        public List<Review> GetAllReview()
+        {
+            return _context.Reviews.ToList();
 
+        }
 
 
     }
