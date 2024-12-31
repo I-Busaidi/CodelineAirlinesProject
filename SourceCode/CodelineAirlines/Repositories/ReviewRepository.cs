@@ -23,6 +23,22 @@ namespace CodelineAirlines.Repositories
                 throw new Exception(ex.InnerException?.Message ?? ex.Message);
             }
         }
+        public void UpdateReview(Review updatedReview)
+        {
+            var existingReview = _context.Reviews.FirstOrDefault(r => r.ReviewId == updatedReview.ReviewId);
+            if (existingReview != null)
+            {
+                existingReview.Rating = updatedReview.Rating;
+                existingReview.Comment = updatedReview.Comment;
+                _context.SaveChanges();
+            }
+
+        }
+        public Review GetReviewById(int id)
+        {
+            return _context.Reviews.FirstOrDefault(p => p.ReviewId == id);
+        }
+
 
 
     }
