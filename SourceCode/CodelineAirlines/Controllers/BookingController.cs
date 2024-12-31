@@ -1,4 +1,5 @@
 ﻿using CodelineAirlines.DTOs.BookingDTOs;
+using CodelineAirlines.Models;
 using CodelineAirlines.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,21 +42,27 @@ namespace CodelineAirlines.Controllers
             }
         }
 
-        // Get bookings endpoint
-        [HttpGet]
-        [Route("get-bookings")]
-        public IActionResult GetBookings([FromQuery] string role, [FromQuery] string passport)
+        // Get all bookings for admin
+        [HttpGet("admin/bookings")]
+        public IEnumerable<Booking> GetAllBookingsForAdmin()
         {
-            try
-            {
-                var bookings = _bookingService.GetBookings(role, passport);
-                return Ok(bookings);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            // Admins can see all bookings
+            return _bookingService.GetAllBookingsForAdmin();
         }
+
+        [HttpGet("passenger/bookings")]
+        public IEnumerable<Booking> GetBookingsForPassenger(string passport)
+        {
+            // Ensure passport is provided for passengers
+            if (string.IsNullOrEmpty(passport))
+            {
+                throw new Exception("Passport is required for passenger.");
+            }
+
+            // Passengers can only see their own bookings
+            return _bookingService.GetBookingsForPassenger(passport);
+        }
+
 
         // Update booking endpoint
         [HttpPut]

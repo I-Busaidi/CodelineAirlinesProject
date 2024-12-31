@@ -27,6 +27,5 @@ namespace CodelineAirlines.Models
 
         public Passenger Passenger { get; set; }
         public Flight Flight { get; set; }
-        public User User { get; set; }
     }
 }

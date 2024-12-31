@@ -57,8 +57,8 @@ namespace CodelineAirlines
             //Value Resolvers for AutoMapper
             builder.Services.AddScoped<SourceAirportNameResolver>();
             builder.Services.AddScoped<DestinationAirportNameResolver>();
-
-
+            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient<WeatherService>(); // Used for weather forecast.
             builder.Services.AddControllers();
 

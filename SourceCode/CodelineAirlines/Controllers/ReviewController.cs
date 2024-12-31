@@ -22,10 +22,11 @@ namespace CodelineAirlines.Controllers
         }
 
         [HttpPost("AddReview")]
-        public IActionResult AddPassenger([FromQuery] ReviewInputDTO reviewInput)
+        public IActionResult AddReview([FromQuery] ReviewInputDTO reviewInput)
         {
             try
-            {
+            {   //Check here after done-----------------------------------
+        
                 // Retrieve the current user's passport
                 var reviewerPassport = reviewInput.ReviewerPassport;
 
@@ -52,5 +53,57 @@ namespace CodelineAirlines.Controllers
                 return StatusCode(500, new { Message = "An error occurred while creating the passenger profile.", Error = ex.Message });
             }
         }
+
+        // Update an existing review
+        [HttpPut("{reviewId}")]
+        public IActionResult UpdateReview(int reviewId, [FromBody] ReviewInputDTO review)
+        {
+            if (review == null || review.ReviewId != reviewId)
+            {
+                return BadRequest("Invalid review data.");
+            }
+
+            try
+            {
+                _reviewService.UpdateReview(review);
+                return Ok("Review updated successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult GetAllFlighitsReviews()
+        {
+            try
+            {
+                var reviews = _reviewService.GetAllReview();
+                return Ok(reviews);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+
+        }
+
+        // Delete a review
+        [HttpDelete("{reviewId}")]
+        public IActionResult DeleteReview(int reviewId)
+        {
+            try
+            {
+                _reviewService.DeleteReview(reviewId);
+                return Ok("Review deleted successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+        }
+
     }
 }
