@@ -28,5 +28,23 @@ namespace CodelineAirlines.Repositories
                 .Include(f => f.DestinationAirport)
                 .Include(f => f.Bookings);
         }
+
+        public int UpdateFlight(Flight flight)
+        {
+            _context.Flights.Update(flight);
+            _context.SaveChanges();
+
+            return flight.FlightNo;
+        }
+
+        public Flight GetFlightById(int id)
+        {
+            return _context.Flights
+                .Include(f => f.Airplane)
+                .Include(f => f.SourceAirport)
+                .Include(f => f.DestinationAirport)
+                .Include(f => f.Bookings)
+                .FirstOrDefault(f => f.FlightNo == id);
+        }
     }
 }

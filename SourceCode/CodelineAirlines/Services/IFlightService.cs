@@ -10,5 +10,6 @@ namespace CodelineAirlines.Services
         List<Flight> GetFlightsByDateInterval(DateTime startDate, DateTime endDate);
         Flight GetPriorFlight(int airplaneId);
         bool IsFlightConflicting(FlightInputDTO flightInput);
+        Flight GetFlightByIdWithRelatedData(int id);
     }
 }
