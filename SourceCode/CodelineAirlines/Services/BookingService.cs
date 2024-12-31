@@ -6,14 +6,16 @@ namespace CodelineAirlines.Services
 {
     public class BookingService : IBookingService
     {
-        private readonly IFlightRepository _flightRepository;
+        private readonly IFlightService _flightService;
         private readonly IPassengerRepository _passengerRepository;
         private readonly IBookingRepository _bookingRepository;
         private readonly IEmailService _emailService;
+        private readonly ISeatTemplateService _seatTemplateService;
 
-        public BookingService(IFlightRepository flightRepository, IPassengerRepository passengerRepository, IBookingRepository bookingRepository, IEmailService emailService)
+        public BookingService(IFlightService flightService, IPassengerRepository passengerRepository, IBookingRepository bookingRepository, IEmailService emailService, ISeatTemplateService seatTemplateService)
         {
-            _flightRepository = flightRepository;
+            _seatTemplateService = seatTemplateService;
+            _flightService = flightService;
             _passengerRepository = passengerRepository;
             _bookingRepository = bookingRepository;
             _emailService = emailService;
@@ -22,7 +24,7 @@ namespace CodelineAirlines.Services
         public bool BookFlight(BookingDTO bookingDto)
         {
             // Retrieve the flight and passenger synchronously
-            var flight = _flightRepository.GetFlightByNo(bookingDto.FlightNo);
+            var flight = _flightService.GetFlightByIdWithRelatedData(bookingDto.FlightNo);
             if (flight == null)
             {
                 throw new Exception("Flight not found.");
@@ -35,7 +37,7 @@ namespace CodelineAirlines.Services
             }
 
             // Check for existing booking for the passenger
-            var existingBooking = flight.Bookings.FirstOrDefault(b => b.Passenger.PassengerPassport == passenger.Passport);
+            var existingBooking = flight.Bookings.FirstOrDefault(b => b.Passenger.Passport == passenger.Passport);
             if (existingBooking != null)
             {
                 throw new Exception("Passenger has already booked this flight.");
@@ -60,12 +62,14 @@ namespace CodelineAirlines.Services
 
             // Add the booking to the flight's bookings collection (in-memory)
             flight.Bookings.Add(booking);
-
+            int seatCapacity = _seatTemplateService.GetSeatTemplatesByModel(flight.Airplane.AirplaneModel).Count();
             // Optionally, mark the flight as fully booked if necessary
-            if (flight.Bookings.Count >= flight.Airplane.Capacity)
+            if (flight.Bookings.Count >= seatCapacity)
             {
-                flight.StatusCode = 1; // Mark flight as fully booked
+                throw new InvalidOperationException("This flight is fully booked");
             }
+
+            SendBookingConfirmationEmail(booking);
 
             return true;
         }
@@ -107,6 +111,9 @@ namespace CodelineAirlines.Services
             // Call the repository to save the changes
             _bookingRepository.UpdateBooking(booking);
 
+            // Send email about the update
+            SendBookingUpdateEmail(booking);
+
             return true; // Return true if update is successful
         }
 
@@ -127,6 +134,9 @@ namespace CodelineAirlines.Services
 
             // Call the repository to cancel the booking
             _bookingRepository.CancelBooking(bookingId);
+
+            // Send email about the cancellation
+            SendBookingCancellationEmail(booking);
 
             return true;
         }
