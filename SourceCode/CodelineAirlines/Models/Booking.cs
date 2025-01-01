@@ -20,6 +20,8 @@ namespace CodelineAirlines.Models
 
         public string? SeatNo { get; set; }
 
+        public int LoyaltyPointsUsed { get; set; }
+
         [Required]
         public decimal TotalCost { get; set; }
         public string? Meal { get; set; }
