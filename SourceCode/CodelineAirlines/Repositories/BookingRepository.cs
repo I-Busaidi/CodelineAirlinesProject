@@ -87,22 +87,5 @@ namespace CodelineAirlines.Repositories
             _context.Bookings.RemoveRange(bookings);
             return bookings.Count();
         }
-
-        public void UpdateRefundAmount(int bookingId, double refundAmount)
-        {
-            // Retrieve the booking by its ID
-            var booking = _context.Bookings.SingleOrDefault(b => b.BookingId == bookingId);
-
-            if (booking == null)
-            {
-                throw new Exception("Booking not found.");
-            }
-
-            // Update the refund amount in the booking
-            booking.TotalCost = (decimal)refundAmount;
-
-            // Save changes to the database
-            _context.SaveChanges();
-        }
     }
 }

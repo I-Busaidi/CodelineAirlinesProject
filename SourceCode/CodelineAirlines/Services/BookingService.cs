@@ -139,12 +139,14 @@ namespace CodelineAirlines.Services
             var booking = _bookingRepository.GetBookingById(bookingId);
             if (booking == null)
             {
+                // If booking is not found, show a message and return false
                 throw new Exception("Booking not found.");
             }
 
             // Retrieve the associated flight for the booking
             if (booking.Flight == null)
             {
+                // If flight is not found, handle this as an error
                 throw new Exception("Flight not found.");
             }
 
@@ -167,20 +169,19 @@ namespace CodelineAirlines.Services
             // Determine the refund percentage based on the time of cancellation
             double refundPercentage = GetRefundPercentage(scheduledDepartureDate, currentDate);
 
-            // Call the repository to cancel the booking
+            // Call the repository to cancel the booking (this deletes the booking)
             _bookingRepository.CancelBooking(bookingId);
 
             // Calculate the refund based on the percentage
             double refundAmount = (double)booking.Flight.Cost * refundPercentage;
 
-            // Optionally, update the booking with the refund amount if needed
-            _bookingRepository.UpdateRefundAmount(bookingId, refundAmount);
 
             // Send email about the cancellation and refund amount
             SendBookingCancellationEmail(booking, refundPercentage, refundAmount);
 
             return true;
         }
+
 
         private double GetRefundPercentage(DateTime departureDate, DateTime currentDate)
         {
@@ -220,7 +221,8 @@ namespace CodelineAirlines.Services
             string subject = "Booking Confirmation";
             string body = $"Dear {booking.Passenger.User.UserName}\n\n" +
                           $"Your booking for Flight {booking.FlightNo} has been confirmed.\n" +
-                          $"Seat: {booking.SeatNo}\n\n" +
+                          $"Seat: {booking.SeatNo}\n" +
+                          $"Meal: {booking.Meal}\n\n" +
                           $"Total Cost: ${booking.TotalCost}\n" +
                           $"We look forward to welcoming you aboard!\n" +
                           $"Thank you for choosing us!\n\n" +
@@ -251,7 +253,7 @@ namespace CodelineAirlines.Services
             string body = $"Dear {booking.Passenger.User.UserName},\n" +
                           $"We regret to inform you that your booking for Flight {booking.FlightNo} has been canceled.\n" +
                           $"Seat: {booking.SeatNo}\n" +
-                          $"Refund Percentage: {refundPercentage * 100}%. Refund Amount: {refundAmount}" +
+                          $"Refund Percentage: {refundPercentage * 100}%. Refund Amount: {refundAmount}\n" +
                           $"We apologize for any inconvenience caused.\n\n" +
                           $"Best regards,\nCodeline's Airline Team";
             _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
