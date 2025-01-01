@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CodelineAirlines.DTOs.ReviewDTOs;
 using CodelineAirlines.DTOs.UserDTOs;
+using CodelineAirlines.Enums;
 using CodelineAirlines.Models;
 using CodelineAirlines.Repositories;
 using Microsoft.IdentityModel.Tokens;
@@ -14,6 +15,7 @@ namespace CodelineAirlines.Services
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
+
         public ReviewService(IReviewRepository reviewRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _reviewRepository = reviewRepository;
@@ -21,19 +23,57 @@ namespace CodelineAirlines.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public void AddReview(ReviewInputDTO review)
+        public void AddReview(Review review)
         {
-            //Add condition "Review can be added after flights arrived only"--------------
-            Review Newreview = _mapper.Map<Review>(review);
 
-            _reviewRepository.AddReview(Newreview);
 
+            if (review == null)
+            {
+                throw new ArgumentNullException(nameof(review), "Review cannot be null.");
+            }
+
+            // Add the review to the repository
+            _reviewRepository.AddReview(review);
         }
+
         // Helper method to get the current authenticated user's ID
         private int GetCurrentUserId()
         {
             return int.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         }
+
+        public IEnumerable<ReviewInputDTO> GetAllReviewsByUser(int userId)
+        {
+         try
+         {
+                // Fetch all reviews for the user
+               var reviews = _reviewRepository.GetReviewsByUserId(userId);
+
+                if (!reviews.Any())
+                  {
+                       throw new KeyNotFoundException("No reviews found for the current user.");
+                 }
+
+                    // Map the reviews to DTOs
+                      return reviews.Select(review => new ReviewInputDTO
+                         {
+                      ReviewId = review.ReviewId,
+                      Rating = review.Rating,
+                      Comment = review.Comment,
+                      ReviewerPassport = review.Reviewer.Passport,
+                      FlightNo = review.FlightReview.FlightNo
+                        });
+         }
+            catch (KeyNotFoundException ex)
+                {
+               throw new ApplicationException("Error: " + ex.Message, ex);
+                }
+            catch (Exception ex)
+            {
+                 throw new ApplicationException("An unexpected error occurred: " + ex.Message, ex);
+            }
+        }
+
         // Update an existing review (only by the creator)
         public ReviewInputDTO UpdateReview(ReviewInputDTO updatedReview)
         {
@@ -121,6 +161,7 @@ namespace CodelineAirlines.Services
 
       
         }
+
 
     }
 }

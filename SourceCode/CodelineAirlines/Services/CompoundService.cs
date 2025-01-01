@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CodelineAirlines.DTOs.AirportDTOs;
 using CodelineAirlines.DTOs.FlightDTOs;
+using CodelineAirlines.DTOs.ReviewDTOs;
 using CodelineAirlines.Enums;
 using CodelineAirlines.Models;
 using MimeKit.Encodings;
@@ -16,6 +17,8 @@ namespace CodelineAirlines.Services
         private readonly ISeatTemplateService _seatTemplateService;
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IReviewService _reviewService;
+
 
         public CompoundService(IFlightService flightService, IAirportService airportService, IAirplaneService airplaneService, IMapper mapper, IBookingService bookingService, ApplicationDbContext context, ISeatTemplateService seatTemplateService)
         {
@@ -26,7 +29,7 @@ namespace CodelineAirlines.Services
             _airplaneService = airplaneService;
             _seatTemplateService = seatTemplateService;
             _mapper = mapper;
-        }
+          }
 
         public int AddFlight(FlightInputDTO flightInput)
         {
@@ -237,5 +240,35 @@ namespace CodelineAirlines.Services
 
             return true;
         }
+        public void AddReview(ReviewInputDTO review)
+        {
+            // Retrieve the flight details
+            var flight = _flightService.GetFlightByIdWithRelatedData(review.FlightNo);
+            if (flight == null)
+            {
+                throw new KeyNotFoundException($"Flight with ID {review.FlightNo} not found.");
+            }
+
+            // Validate flight status
+            if (!Enum.IsDefined(typeof(FlightStatus), flight.StatusCode))
+            {
+                throw new ArgumentOutOfRangeException(nameof(flight.StatusCode), "Invalid flight status code.");
+            }
+
+            if ((FlightStatus)flight.StatusCode != FlightStatus.Arrived)
+            {
+                throw new InvalidOperationException("Reviews can only be added for flights that have arrived.");
+            }
+
+            // Map the input DTO to the Review 
+            var newReview = _mapper.Map<Review>(review);
+
+        
+            _reviewService.AddReview(newReview);
+        }
+
+
+
+
     }
 }

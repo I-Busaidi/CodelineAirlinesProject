@@ -1,4 +1,5 @@
 ﻿using CodelineAirlines.DTOs.FlightDTOs;
+using CodelineAirlines.DTOs.ReviewDTOs;
 using CodelineAirlines.Enums;
 
 namespace CodelineAirlines.Services
@@ -11,5 +12,7 @@ namespace CodelineAirlines.Services
         (int flightNo, int BookingsCount) CancelFlight(int flightId, string condition);
 
         FlightDetailedOutputDTO GetFlightDetails(int flightNo);
+
+        void AddReview(ReviewInputDTO review);
     }
 }

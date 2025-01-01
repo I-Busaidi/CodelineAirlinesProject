@@ -1,4 +1,5 @@
-﻿using CodelineAirlines.DTOs.PassengerDTOs;
+﻿using AutoMapper;
+using CodelineAirlines.DTOs.PassengerDTOs;
 using CodelineAirlines.DTOs.ReviewDTOs;
 using CodelineAirlines.Models;
 using CodelineAirlines.Services;
@@ -14,7 +15,8 @@ namespace CodelineAirlines.Controllers
     public class ReviewController:ControllerBase
     {
         private readonly IReviewService _reviewService;
-        private readonly IUserService _userService;
+        private readonly IMapper _mapper;
+        private readonly ICompoundService _compoundService;
         public ReviewController(IReviewService reviewService)
         {
             _reviewService = reviewService;
@@ -25,15 +27,28 @@ namespace CodelineAirlines.Controllers
         public IActionResult AddReview([FromQuery] ReviewInputDTO reviewInput)
         {
             try
-            {   //Check here after done-----------------------------------
-        
-                // Retrieve the current user's passport
-                var reviewerPassport = reviewInput.ReviewerPassport;
+            {   
+                
+                //Check here after done-----------------------------------
 
-                // Call the service method to add the Review
-                _reviewService.AddReview(reviewInput);
+                // Retrieve the current user's passport
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    throw new UnauthorizedAccessException("User ID is missing or invalid.");
+                }
+                // Map the input DTO to the Review 
+                var newReview = _mapper.Map<Review>(reviewInput);
+
+                // Set the ReviewerId (from the JWT token) on the Review entity
+                newReview.Reviewer.UserId = int.Parse(userId);
+
+                // Call the service method to add the review
+                _compoundService.AddReview(reviewInput);
 
                 return Ok(new { Message = "Review created successfully." });
+
+              
             }
             catch (KeyNotFoundException ex)
             {
@@ -43,14 +58,48 @@ namespace CodelineAirlines.Controllers
             {
                 return StatusCode(403, new { Message = ex.Message });
             }
-
             catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (ArgumentException ex)
             {
                 return BadRequest(new { Message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An error occurred while creating the passenger profile.", Error = ex.Message });
+                return StatusCode(500, new { Message = "An unexpected error occurred.", Error = ex.Message });
+            }
+        }
+        [HttpGet("user-reviews")]
+        public IActionResult GetAllUserReviews()
+        {
+            try
+            {
+                // Retrieve the current user's ID from JWT claims
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+             
+
+                // Call the service to fetch the reviews
+                var reviews = _reviewService.GetAllReviewsByUser(userId);
+
+                return Ok(new { Message = "Reviews retrieved successfully.", Reviews = reviews });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { Message = ex.Message });
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while retrieving the reviews.", Error = ex.Message });
             }
         }
 
