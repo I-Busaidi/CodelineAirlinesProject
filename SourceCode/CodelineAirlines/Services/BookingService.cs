@@ -36,12 +36,11 @@ namespace CodelineAirlines.Services
                 throw new Exception("Passenger not found.");
             }
 
-            // Check for existing booking for the passenger
-            //var existingBooking = flight.Bookings.FirstOrDefault(b => b.Passenger.Passport == passenger.Passport);
-            //if (existingBooking != null)
-            //{
-            //    throw new Exception("Passenger has already booked this flight.");
-            //}
+            // Check if the passenger has enough loyalty points
+            if (bookingDto.LoyaltyPointsToUse > passenger.LoyaltyPoints)
+            {
+                throw new InvalidOperationException("Insufficient loyalty points.");
+            }
 
             // Check if the flight is fully booked
             int seatCapacity = _seatTemplateService.GetSeatTemplatesByModel(flight.Airplane.AirplaneModel).Count();
@@ -50,16 +49,27 @@ namespace CodelineAirlines.Services
                 throw new InvalidOperationException("This flight is fully booked");
             }
 
-            // Create new booking
+            // Calculate the discount based on loyalty points used
+            decimal loyaltyPointsValue = bookingDto.LoyaltyPointsToUse * 10m;  // Assuming 1 point = $10 discount (you can adjust the value here)
+            if (loyaltyPointsValue > flight.Cost)
+            {
+                loyaltyPointsValue = flight.Cost;  // Ensure the discount does not exceed the flight cost
+            }
+
+            // Apply the discount to the total cost
+            decimal discountedCost = flight.Cost - loyaltyPointsValue;
+
+            // Create new booking with the discounted total cost
             var booking = new Booking
             {
                 FlightNo = bookingDto.FlightNo,
                 PassengerPassport = bookingDto.PassengerPassport,
                 SeatNo = bookingDto.SeatNo,
                 Meal = bookingDto.Meal,
-                TotalCost = flight.Cost,
+                TotalCost = discountedCost,  // Apply the discount here
                 Status = 0,  // Assume booking is pending
                 BookingDate = DateTime.Now,
+                LoyaltyPointsUsed = bookingDto.LoyaltyPointsToUse,
                 Passenger = passenger,
                 Flight = flight
             };
@@ -70,14 +80,14 @@ namespace CodelineAirlines.Services
             // Add the booking to the flight's bookings collection (in-memory)
             flight.Bookings.Add(booking);
 
-            // Add loyalty points to the passenger's account
-            IncreaseLoyaltyPoints(passenger, flight.Cost);
+            // Deduct the loyalty points used from the passenger's account
+            passenger.LoyaltyPoints -= bookingDto.LoyaltyPointsToUse;
 
-            // Save the updated passenger with the new loyalty points
+            // Save the updated passenger with the reduced loyalty points
             _passengerRepository.UpdatePassenger(passenger);
 
-            // Send booking confirmation email
-            SendBookingConfirmationEmail(bookingId);  // Pass the booking object to the email method
+            // Send booking confirmation email with loyalty points and discount details
+            SendBookingConfirmationEmail(bookingId, bookingDto.LoyaltyPointsToUse, loyaltyPointsValue);
 
             return true;
         }
@@ -172,15 +182,25 @@ namespace CodelineAirlines.Services
             // Call the repository to cancel the booking (this deletes the booking)
             _bookingRepository.CancelBooking(bookingId);
 
-            // Calculate the refund based on the percentage
+            // Calculate the refund amount based on the refund percentage
             double refundAmount = (double)booking.Flight.Cost * refundPercentage;
 
+            // Refund the loyalty points used for this booking
+            int pointsRefunded = booking.LoyaltyPointsUsed;
 
-            // Send email about the cancellation and refund amount
-            SendBookingCancellationEmail(booking, refundPercentage, refundAmount);
+            // Add the refunded loyalty points back to the passenger's account
+            var passenger = booking.Passenger;
+            passenger.LoyaltyPoints += pointsRefunded;
+
+            // Update the passenger's loyalty points in the repository
+            _passengerRepository.UpdatePassenger(passenger);
+
+            // Send email about the cancellation, refund amount, and refunded loyalty points
+            SendBookingCancellationEmail(booking, refundPercentage, refundAmount, pointsRefunded);
 
             return true;
         }
+
 
 
         private double GetRefundPercentage(DateTime departureDate, DateTime currentDate)
@@ -215,7 +235,7 @@ namespace CodelineAirlines.Services
         }
 
         // Method to send booking confirmation email
-        private void SendBookingConfirmationEmail(int bookingId)
+        private void SendBookingConfirmationEmail(int bookingId, int loyaltyPointsUsed, decimal discountAmount)
         {
             var booking = _bookingRepository.GetBookingById(bookingId);
             string subject = "Booking Confirmation";
@@ -223,23 +243,34 @@ namespace CodelineAirlines.Services
                           $"Your booking for Flight {booking.FlightNo} has been confirmed.\n" +
                           $"Seat: {booking.SeatNo}\n" +
                           $"Meal: {booking.Meal}\n\n" +
-                          $"Total Cost: ${booking.TotalCost}\n" +
-                          $"We look forward to welcoming you aboard!\n" +
-                          $"Thank you for choosing us!\n\n" +
-                          $"Best regards,\nCodeline's Airline Team";
+                          $"Total Cost: ${booking.TotalCost}\n\n";
+
+            // Include loyalty points and discount information
+            if (loyaltyPointsUsed > 0)
+            {
+                body += $"Loyalty Points Used: {loyaltyPointsUsed} points\n" +
+                        $"Discount Applied: ${discountAmount}\n\n";
+            }
+
+            body += $"We look forward to welcoming you aboard!\n" +
+                    $"Thank you for choosing us!\n\n" +
+                    $"Best regards,\nCodeline's Airline Team";
+
+            // Send the email
             _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
         }
+
 
         // Method to send booking update email
         private void SendBookingUpdateEmail(int bookingId)
         {
             var booking = _bookingRepository.GetBookingById(bookingId);
             string subject = "Booking Update";
-            string body = $"Dear {booking.Passenger.User.UserName},\n" +
+            string body = $"Dear {booking.Passenger.User.UserName},\n\n" +
                           $"Your booking for Flight {booking.FlightNo} has been updated.\n" +
                           $"New Seat: {booking.SeatNo}\n" +
                           $"New Meal: {booking.Meal}\n" +
-                          $"New Total Cost: ${booking.TotalCost}\n" +
+                          $"New Total Cost: ${booking.TotalCost}\n\n" +
                           $"We look forward to welcoming you aboard!\n" +
                           $"Thank you for updating your booking with us.\n\n" +
                           $"Best regards,\nCodeline's Airline Team";
@@ -247,17 +278,30 @@ namespace CodelineAirlines.Services
         }
 
         // Method to send booking cancellation email
-        private void SendBookingCancellationEmail(Booking booking, double refundPercentage, double refundAmount)
+        private void SendBookingCancellationEmail(Booking booking, double refundPercentage, double refundAmount, int pointsRefunded)
         {
-            string subject = "Booking Cancellation";
-            string body = $"Dear {booking.Passenger.User.UserName},\n" +
-                          $"We regret to inform you that your booking for Flight {booking.FlightNo} has been canceled.\n" +
+            string subject = "Booking Cancellation Confirmation";
+            string body = $"Dear {booking.Passenger.User.UserName},\n\n" +
+                          $"We regret to inform you that your booking for Flight {booking.FlightNo} has been cancelled.\n" +
                           $"Seat: {booking.SeatNo}\n" +
-                          $"Refund Percentage: {refundPercentage * 100}%. Refund Amount: {refundAmount}\n" +
-                          $"We apologize for any inconvenience caused.\n\n" +
-                          $"Best regards,\nCodeline's Airline Team";
+                          $"Meal: {booking.Meal}\n\n" +
+                          $"Refund Percentage: {refundPercentage * 100}%\n" +
+                          $"Refund Amount: ${refundAmount}\n\n";
+
+            // Include refunded loyalty points
+            if (pointsRefunded > 0)
+            {
+                body += $"Loyalty Points Refunded: {pointsRefunded} points\n\n";
+            }
+
+            body += $"We hope to welcome you on board in the future!\n" +
+                    $"Thank you for choosing us!\n\n" +
+                    $"Best regards,\nCodeline's Airline Team";
+
+            // Send the email
             _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
         }
+
 
         public int CancelFlightBookings(List<int> bookingsIds, string condition)
         {

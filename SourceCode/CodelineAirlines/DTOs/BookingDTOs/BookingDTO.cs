@@ -6,5 +6,6 @@
         public string PassengerPassport { get; set; }
         public string SeatNo { get; set; }
         public string? Meal { get; set; }
+        public int LoyaltyPointsToUse { get; set; }
     }
 }

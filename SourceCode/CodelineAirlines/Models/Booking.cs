@@ -18,7 +18,10 @@ namespace CodelineAirlines.Models
         [ForeignKey("Flight")]
         public int FlightNo { get; set; }
 
+
         public string? SeatNo { get; set; }
+
+        public int LoyaltyPointsUsed { get; set; }
 
         [Required]
         public decimal TotalCost { get; set; }

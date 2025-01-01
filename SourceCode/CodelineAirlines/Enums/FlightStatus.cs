@@ -10,6 +10,8 @@ namespace CodelineAirlines.Enums
         OnTime = 1,
         Delayed = 2,
         InFlight = 3,
-        Arrived = 4
+        Arrived = 4,
+        Canceled = 5,
+        ReScheduled = 6
     }
 }

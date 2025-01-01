@@ -11,6 +11,8 @@ namespace CodelineAirlines.Services
 
         (int flightNo, int BookingsCount) CancelFlight(int flightId, string condition);
 
+        FlightDetailedOutputDTO GetFlightDetails(int flightNo);
+
         void AddReview(ReviewInputDTO review);
     }
 }

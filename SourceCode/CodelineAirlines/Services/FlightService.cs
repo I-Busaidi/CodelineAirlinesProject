@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using CodelineAirlines.DTOs.AirportDTOs;
 using CodelineAirlines.DTOs.FlightDTOs;
+using CodelineAirlines.Enums;
 using CodelineAirlines.Migrations;
 using CodelineAirlines.Models;
 using CodelineAirlines.Repositories;
