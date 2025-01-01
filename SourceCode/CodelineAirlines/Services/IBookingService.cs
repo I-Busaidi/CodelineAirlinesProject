@@ -10,5 +10,6 @@ namespace CodelineAirlines.Services
         IEnumerable<Booking> GetAllBookingsForAdmin();
         IEnumerable<Booking> GetBookingsForPassenger(string passport);
         bool UpdateBooking(UpdateBookingDTO bookingDto);
+        int CancelFlightBookings(List<int> bookingsIds, string condition);
     }
 }

@@ -12,5 +12,7 @@ namespace CodelineAirlines.Services
         bool IsFlightConflicting(FlightInputDTO flightInput);
         Flight GetFlightByIdWithRelatedData(int id);
         int UpdateFlightStatus(Flight flight);
+
+        int CancelFlight(Flight flight);
     }
 }

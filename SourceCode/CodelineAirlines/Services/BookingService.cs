@@ -190,5 +190,35 @@ namespace CodelineAirlines.Services
                           $"We apologize for any inconvenience caused.";
             _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
         }
+
+        public int CancelFlightBookings(List<int> bookingsIds, string condition)
+        {
+            List<Booking> bookings = new List<Booking>();
+            for (int i = 0; i < bookingsIds.Count; i++)
+            {
+                bookings.Add(_bookingRepository.GetBookingById(bookingsIds[i]));
+            }
+            // Call the repository to cancel the booking
+            int bookingsCount = _bookingRepository.CancelBookingsRange(bookings);
+
+            // Send email about the cancellation
+            SendFlightBookingsCancellationEmail(bookings, condition);  // Pass the booking object to the email method
+
+            return bookingsCount;
+        }
+
+        private void SendFlightBookingsCancellationEmail(List<Booking> bookings, string condition)
+        {
+            foreach (Booking booking in bookings)
+            {
+                string subject = $"Booking Cancellation Due to {condition}";
+                string body = $"Dear {booking.Passenger.User.UserName},\n" +
+                              $"We regret to inform you that your booking for Flight {booking.FlightNo} has been canceled due to {condition}.\n" +
+                              $"Seat: {booking.SeatNo}\n" +
+                              $"Total Cost Refund: ${booking.TotalCost}\n" +
+                              $"We apologize for any inconvenience caused.";
+                _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
+            }
+        }
     }
 }
