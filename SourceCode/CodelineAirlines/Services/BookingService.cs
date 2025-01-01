@@ -142,13 +142,75 @@ namespace CodelineAirlines.Services
                 throw new Exception("Booking not found.");
             }
 
+            // Retrieve the associated flight for the booking
+            if (booking.Flight == null)
+            {
+                throw new Exception("Flight not found.");
+            }
+
+            // Get the current time and compare with the flight's scheduled departure date
+            var currentDate = DateTime.Now;
+            var scheduledDepartureDate = booking.Flight.ScheduledDepartureDate;
+
+            // Check if the cancellation is being attempted on the same day of departure
+            if (scheduledDepartureDate.Date == currentDate.Date)
+            {
+                throw new Exception("Booking cannot be cancelled on the same day of departure.");
+            }
+
+            // Check if the flight has already departed (using ActualDepartureDate)
+            if (booking.Flight.ActualDepartureDate.HasValue && booking.Flight.ActualDepartureDate.Value.Date <= currentDate.Date)
+            {
+                throw new Exception("Booking cannot be cancelled after the flight has departed.");
+            }
+
+            // Determine the refund percentage based on the time of cancellation
+            double refundPercentage = GetRefundPercentage(scheduledDepartureDate, currentDate);
+
             // Call the repository to cancel the booking
             _bookingRepository.CancelBooking(bookingId);
 
-            // Send email about the cancellation
-            SendBookingCancellationEmail(booking);  // Pass the booking object to the email method
+            // Calculate the refund based on the percentage
+            double refundAmount = (double)booking.Flight.Cost * refundPercentage;
+
+            // Optionally, update the booking with the refund amount if needed
+            _bookingRepository.UpdateRefundAmount(bookingId, refundAmount);
+
+            // Send email about the cancellation and refund amount
+            SendBookingCancellationEmail(booking, refundPercentage, refundAmount);
 
             return true;
+        }
+
+        private double GetRefundPercentage(DateTime departureDate, DateTime currentDate)
+        {
+            // Logic for determining the refund percentage based on the cancellation timing
+            double refundPercentage = 0;
+
+            TimeSpan timeUntilDeparture = departureDate - currentDate;
+
+            if (timeUntilDeparture.TotalDays >= 30)
+            {
+                refundPercentage = 1.0; // Full refund if cancelled 30 or more days before departure
+            }
+            else if (timeUntilDeparture.TotalDays >= 14)
+            {
+                refundPercentage = 0.75; // 75% refund if cancelled 14-29 days before departure
+            }
+            else if (timeUntilDeparture.TotalDays >= 7)
+            {
+                refundPercentage = 0.50; // 50% refund if cancelled 7-13 days before departure
+            }
+            else if (timeUntilDeparture.TotalDays >= 1)
+            {
+                refundPercentage = 0.25; // 25% refund if cancelled 1-6 days before departure
+            }
+            else
+            {
+                refundPercentage = 0.0; // No refund if cancelled less than 24 hours before departure
+            }
+
+            return refundPercentage;
         }
 
         // Method to send booking confirmation email
@@ -183,13 +245,13 @@ namespace CodelineAirlines.Services
         }
 
         // Method to send booking cancellation email
-        private void SendBookingCancellationEmail(Booking booking)
+        private void SendBookingCancellationEmail(Booking booking, double refundPercentage, double refundAmount)
         {
             string subject = "Booking Cancellation";
             string body = $"Dear {booking.Passenger.User.UserName},\n" +
                           $"We regret to inform you that your booking for Flight {booking.FlightNo} has been canceled.\n" +
                           $"Seat: {booking.SeatNo}\n" +
-                          $"Total Cost: ${booking.TotalCost}\n" +
+                          $"Refund Percentage: {refundPercentage * 100}%. Refund Amount: {refundAmount}" +
                           $"We apologize for any inconvenience caused.\n\n" +
                           $"Best regards,\nCodeline's Airline Team";
             _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
