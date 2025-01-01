@@ -220,7 +220,7 @@ namespace CodelineAirlines.Services
             var priorFlight = _flightService.GetPriorFlight(airplane.AirplaneId);
             if (priorFlight != null)
             {
-                if (priorFlight.DestinationAirportId != srcAirport.AirportId)
+                if (priorFlight.DestinationAirportId != srcAirport.AirportId || priorFlight.ScheduledArrivalDate >= flightInput.ScheduledDepartureDate)
                 {
                     return false;
                 }
