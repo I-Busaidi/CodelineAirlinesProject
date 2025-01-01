@@ -11,6 +11,5 @@ namespace CodelineAirlines.Repositories
         Booking GetBookingById(int bookingId);
         IEnumerable<Booking> GetBookingsByPassenger(string passengerPassport);
         void UpdateBooking(Booking booking);
-        void UpdateRefundAmount(int bookingId, double refundAmount);
     }
 }
