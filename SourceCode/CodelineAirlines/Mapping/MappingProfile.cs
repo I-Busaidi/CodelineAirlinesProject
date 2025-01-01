@@ -5,6 +5,7 @@ using CodelineAirlines.DTOs.FlightDTOs;
 using CodelineAirlines.DTOs.PassengerDTOs;
 using CodelineAirlines.DTOs.ReviewDTOs;
 using CodelineAirlines.DTOs.UserDTOs;
+using CodelineAirlines.Enums;
 using CodelineAirlines.Models;
 namespace CodelineAirlines.Mapping
 {
@@ -35,6 +36,12 @@ namespace CodelineAirlines.Mapping
             CreateMap<FlightInputDTO, Flight>()
                 .ForMember(dest => dest.SourceAirportId , opt => opt.MapFrom<SourceAirportNameResolver>())
                 .ForMember(dest => dest.DestinationAirportId, opt => opt.MapFrom<DestinationAirportNameResolver>());
+
+            CreateMap<Flight, FlightOutputDTO>()
+                .ForMember(dest => dest.SourceAirportName, opt => opt.MapFrom(src => src.SourceAirport.AirportName))
+                .ForMember(dest => dest.DestinationAirportName, opt => opt.MapFrom(src => src.DestinationAirport.AirportName))
+                .ForMember(dest => dest.AirplaneModel, opt => opt.MapFrom(src => src.Airplane.AirplaneModel))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => Enum.GetName(typeof(FlightStatus), src.StatusCode)));
         }
     }
     

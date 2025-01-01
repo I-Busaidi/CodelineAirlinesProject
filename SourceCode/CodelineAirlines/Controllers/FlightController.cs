@@ -100,5 +100,73 @@ namespace CodelineAirlines.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("GetFlights")]
+        public IActionResult GetFlights
+            (
+                TimeSpan? minDuration = null,
+                TimeSpan? maxDuration = null,
+                DateTime? fromDate = null,
+                DateTime? toDate = null,
+                int pageSize = 10,
+                int pageNumber = 1,
+                string? sourceAirport = "",
+                string? destAirport = "",
+                string? status = "",
+                string? airplaneModel = "",
+                decimal minCost = 0,
+                decimal maxCost = int.MaxValue
+            )
+        {
+            if ( minDuration == null )
+            {
+                minDuration = TimeSpan.Zero;
+            }
+            if ( maxDuration == null )
+            {
+                maxDuration = TimeSpan.MaxValue;
+            }
+            if ( fromDate == null )
+            {
+                fromDate = DateTime.MinValue;
+            }
+            if ( toDate == null )
+            {
+                toDate = DateTime.MaxValue;
+            }
+
+            try
+            {
+                var result = _flightService.GetAllFlights()
+                    .Where(f => NormalizeString(f.Status).Contains(NormalizeString(status))
+                    & NormalizeString(f.AirplaneModel).Contains(NormalizeString(airplaneModel))
+                    & NormalizeString(f.SourceAirportName).Contains(NormalizeString(sourceAirport))
+                    & NormalizeString(f.DestinationAirportName).Contains(NormalizeString(destAirport))
+                    & f.ScheduledDepartureDate >= fromDate
+                    & f.ScheduledDepartureDate <= toDate
+                    & f.Cost >= minCost
+                    & f.Cost <= maxCost
+                    & f.Duration >= minDuration
+                    & f.Duration <= maxDuration)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        private string NormalizeString(string input)
+        {
+            return string.Concat(input.Where(c => !char.IsWhiteSpace(c))).ToLower();
+        }
     }
 }

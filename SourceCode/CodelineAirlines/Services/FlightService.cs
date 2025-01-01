@@ -29,13 +29,27 @@ namespace CodelineAirlines.Services
             return _flightRepository.AddFlight(flightInput);
         }
 
-        public List<Flight> GetAllFlights()
+        public List<Flight> GetAllFlightsWithRelatedData()
         {
             var flights = _flightRepository.GetAllFlights()
                 .OrderBy(f => f.StatusCode)
                 .ToList();
 
             return flights;
+        }
+
+        public List<FlightOutputDTO> GetAllFlights()
+        {
+            var flights = _flightRepository.GetAllFlights()
+                .OrderBy(f => f.StatusCode)
+                .ToList();
+
+            if (flights == null || flights.Count == 0)
+            {
+                throw new InvalidOperationException("No flights found");
+            }
+
+            return _mapper.Map<List<FlightOutputDTO>>(flights);
         }
 
         public List<Flight> GetFlightsByDateInterval(DateTime startDate, DateTime endDate)
