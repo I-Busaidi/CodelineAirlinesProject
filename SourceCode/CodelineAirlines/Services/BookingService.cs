@@ -220,7 +220,8 @@ namespace CodelineAirlines.Services
             string subject = "Booking Confirmation";
             string body = $"Dear {booking.Passenger.User.UserName}\n\n" +
                           $"Your booking for Flight {booking.FlightNo} has been confirmed.\n" +
-                          $"Seat: {booking.SeatNo}\n\n" +
+                          $"Seat: {booking.SeatNo}\n" +
+                          $"Meal: {booking.Meal}\n\n" +
                           $"Total Cost: ${booking.TotalCost}\n" +
                           $"We look forward to welcoming you aboard!\n" +
                           $"Thank you for choosing us!\n\n" +

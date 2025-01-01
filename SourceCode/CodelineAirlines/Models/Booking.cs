@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace CodelineAirlines.Models
 {
@@ -25,7 +26,9 @@ namespace CodelineAirlines.Models
         public int Status { get; set; } = 0;
         public DateTime BookingDate { get; set; } = DateTime.Now;
 
+        [JsonIgnore]
         public Passenger Passenger { get; set; }
+        [JsonIgnore]
         public Flight Flight { get; set; }
     }
 }
