@@ -8,5 +8,7 @@ namespace CodelineAirlines.Repositories
         IEnumerable<Flight> GetAllFlights();
         int UpdateFlight(Flight flight);
         Flight GetFlightById(int id);
+
+        int CancelFlight(Flight flight);
     }
 }

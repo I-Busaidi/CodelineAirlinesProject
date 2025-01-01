@@ -7,5 +7,7 @@ namespace CodelineAirlines.Services
     {
         int AddFlight(FlightInputDTO flightInput);
         (int, string) UpdateFlightStatus(int flightId, FlightStatus flightStatus);
+
+        (int flightNo, int BookingsCount) CancelFlight(int flightId, string condition);
     }
 }

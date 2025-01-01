@@ -61,5 +61,24 @@ namespace CodelineAirlines.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [Authorize(Roles = "admin")]
+        [HttpDelete("CancelFlight/{FlightNo}")]
+        public IActionResult CancelFlight(int FlightNo, string condition)
+        {
+            try
+            {
+                var result = _compoundService.CancelFlight(FlightNo, condition);
+                return Ok($"Flight canceled.\nFlight Number: {result.flightNo}\nNumber of bookings canceled: {result.BookingsCount}");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

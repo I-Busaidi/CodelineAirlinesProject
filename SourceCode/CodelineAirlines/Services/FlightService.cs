@@ -66,6 +66,11 @@ namespace CodelineAirlines.Services
             return _flightRepository.UpdateFlight(flight);
         }
 
+        public int CancelFlight(Flight flight)
+        {
+            return _flightRepository.CancelFlight(flight);
+        }
+
         public Flight GetFlightByIdWithRelatedData(int id)
         {
             var flight = _flightRepository.GetFlightById(id);

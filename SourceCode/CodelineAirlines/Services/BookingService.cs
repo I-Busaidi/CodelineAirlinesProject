@@ -156,12 +156,13 @@ namespace CodelineAirlines.Services
         {
             var booking = _bookingRepository.GetBookingById(bookingId);
             string subject = "Booking Confirmation";
-            string body = $"Dear {booking.Passenger.User.UserName}\n" +
+            string body = $"Dear {booking.Passenger.User.UserName}\n\n" +
                           $"Your booking for Flight {booking.FlightNo} has been confirmed.\n" +
-                          $"Seat: {booking.SeatNo}" +
+                          $"Seat: {booking.SeatNo}\n\n" +
                           $"Total Cost: ${booking.TotalCost}\n" +
                           $"We look forward to welcoming you aboard!\n" +
-                          $"Thank you for choosing us!";
+                          $"Thank you for choosing us!\n\n" +
+                          $"Best regards,\nCodeline's Airline Team";
             _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
         }
 
@@ -175,7 +176,9 @@ namespace CodelineAirlines.Services
                           $"New Seat: {booking.SeatNo}\n" +
                           $"New Meal: {booking.Meal}\n" +
                           $"New Total Cost: ${booking.TotalCost}\n" +
-                          $"Thank you for updating your booking with us.";
+                          $"We look forward to welcoming you aboard!\n" +
+                          $"Thank you for updating your booking with us.\n\n" +
+                          $"Best regards,\nCodeline's Airline Team";
             _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
         }
 
@@ -187,8 +190,39 @@ namespace CodelineAirlines.Services
                           $"We regret to inform you that your booking for Flight {booking.FlightNo} has been canceled.\n" +
                           $"Seat: {booking.SeatNo}\n" +
                           $"Total Cost: ${booking.TotalCost}\n" +
-                          $"We apologize for any inconvenience caused.";
+                          $"We apologize for any inconvenience caused.\n\n" +
+                          $"Best regards,\nCodeline's Airline Team";
             _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
+        }
+
+        public int CancelFlightBookings(List<int> bookingsIds, string condition)
+        {
+            List<Booking> bookings = new List<Booking>();
+            for (int i = 0; i < bookingsIds.Count; i++)
+            {
+                bookings.Add(_bookingRepository.GetBookingById(bookingsIds[i]));
+            }
+            // Call the repository to cancel the booking
+            int bookingsCount = _bookingRepository.CancelBookingsRange(bookings);
+
+            // Send email about the cancellation
+            SendFlightBookingsCancellationEmail(bookings, condition);  // Pass the booking object to the email method
+
+            return bookingsCount;
+        }
+
+        private void SendFlightBookingsCancellationEmail(List<Booking> bookings, string condition)
+        {
+            foreach (Booking booking in bookings)
+            {
+                string subject = $"Booking Cancellation Due to {condition}";
+                string body = $"Dear {booking.Passenger.User.UserName},\n" +
+                              $"We regret to inform you that your booking for Flight {booking.FlightNo} has been canceled due to {condition}.\n" +
+                              $"Seat: {booking.SeatNo}\n" +
+                              $"Total Cost Refund: ${booking.TotalCost}\n" +
+                              $"We apologize for any inconvenience caused.";
+                _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
+            }
         }
     }
 }
