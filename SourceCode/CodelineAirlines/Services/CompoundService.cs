@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using ActiveUp.Net.Mail;
+using AutoMapper;
 using CodelineAirlines.DTOs.AirportDTOs;
 using CodelineAirlines.DTOs.FlightDTOs;
 using CodelineAirlines.DTOs.ReviewDTOs;
@@ -20,7 +21,7 @@ namespace CodelineAirlines.Services
         private readonly IReviewService _reviewService;
 
 
-        public CompoundService(IFlightService flightService, IAirportService airportService, IAirplaneService airplaneService, IMapper mapper, IBookingService bookingService, ApplicationDbContext context, ISeatTemplateService seatTemplateService)
+        public CompoundService(IFlightService flightService, IAirportService airportService, IAirplaneService airplaneService, IMapper mapper, IBookingService bookingService, ApplicationDbContext context, ISeatTemplateService seatTemplateService, IReviewService reviewService)
         {
             _context = context;
             _bookingService = bookingService;
@@ -28,6 +29,7 @@ namespace CodelineAirlines.Services
             _airportService = airportService;
             _airplaneService = airplaneService;
             _seatTemplateService = seatTemplateService;
+            _reviewService = reviewService;
             _mapper = mapper;
           }
 
@@ -63,6 +65,68 @@ namespace CodelineAirlines.Services
 
             var flight = _mapper.Map<Flight>(flightInput);
             return _flightService.AddFlight(flight);
+        }
+
+        public (int FlightNo, DateTime NewDepartureDate) RescheduleFlight(int flightNo, DateTime newDate, int airplaneId = -1)
+        {
+            var flight = _flightService.GetFlightByIdWithRelatedData(flightNo);
+            if (flight == null)
+            {
+                throw new KeyNotFoundException("Could not find flight");
+            }
+
+            if (newDate <= DateTime.Now.AddDays(3))
+            {
+                throw new InvalidOperationException("Cannot reschedule a flight 3 days before the flight departure date");
+            }
+
+            flight.ScheduledDepartureDate = newDate;
+
+            if (airplaneId == -1)
+            {
+                airplaneId = flight.AirplaneId;
+            }
+            else
+            {
+                flight.AirplaneId = airplaneId;
+            }
+
+            var airplane = _airplaneService.GetAirplaneByIdWithRelatedData(flight.AirplaneId);
+            if (airplane == null)
+            {
+                throw new KeyNotFoundException("Airplane not found");
+            }
+
+            if (!CheckAirplaneAvailabilityForReschedule(flight))
+            {
+                throw new InvalidOperationException("Airplane is not available for this flight");
+            }
+
+            using (var transcation = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    flight.StatusCode = 6;
+                    int updatedFlightNo = _flightService.CancelFlight(flight);
+
+                    var bookings = flight.Bookings.Select(b => b.BookingId).ToList();
+
+                    if (bookings != null || bookings.Count > 0)
+                    {
+                        _bookingService.RescheduledFlightBookings(bookings, newDate);
+                    }
+
+                    _context.SaveChanges();
+                    transcation.Commit();
+
+                    return (flightNo, newDate);
+                }
+                catch (Exception ex)
+                {
+                    transcation.Rollback();
+                    throw new InvalidOperationException("An error occured when canceling flight");
+                }
+            }
         }
 
         public (int, string) UpdateFlightStatus(int flightId, FlightStatus flightStatus)
@@ -215,6 +279,32 @@ namespace CodelineAirlines.Services
             return flightDetails;
         }
 
+        private bool CheckAirplaneAvailabilityForReschedule(Flight flightInput)
+        {
+            var priorFlight = _flightService.GetPriorFlightForReschedule(flightInput.Airplane.AirplaneId, flightInput.FlightNo);
+            if (priorFlight != null)
+            {
+                if (priorFlight.DestinationAirportId != flightInput.SourceAirport.AirportId || priorFlight.ScheduledArrivalDate >= flightInput.ScheduledDepartureDate)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (flightInput.Airplane.CurrentAirportId != flightInput.SourceAirport.AirportId)
+                {
+                    return false;
+                }
+            }
+
+            if (_flightService.IsFlightConflictingForReschedule(flightInput))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private bool CheckAirplaneAvailability(Airplane airplane, Airport srcAirport, FlightInputDTO flightInput)
         {
             var priorFlight = _flightService.GetPriorFlight(airplane.AirplaneId);
@@ -266,9 +356,5 @@ namespace CodelineAirlines.Services
         
             _reviewService.AddReview(newReview);
         }
-
-
-
-
     }
 }

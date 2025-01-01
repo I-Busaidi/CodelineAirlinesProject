@@ -11,5 +11,6 @@ namespace CodelineAirlines.Services
         IEnumerable<Booking> GetBookingsForPassenger(string passport);
         bool UpdateBooking(UpdateBookingDTO bookingDto);
         int CancelFlightBookings(List<int> bookingsIds, string condition);
+        void RescheduledFlightBookings(List<int> bookingsIds, DateTime newDate);
     }
 }

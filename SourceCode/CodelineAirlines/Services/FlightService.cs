@@ -69,12 +69,29 @@ namespace CodelineAirlines.Services
                 .FirstOrDefault();
         }
 
+        public Flight GetPriorFlightForReschedule(int airplaneId, int flightNo)
+        {
+            return _flightRepository.GetAllFlights()
+                .Where(f => f.AirplaneId == airplaneId && f.StatusCode < 4 && f.FlightNo != flightNo)
+                .OrderByDescending(f => f.ScheduledDepartureDate)
+                .FirstOrDefault();
+        }
+
         public bool IsFlightConflicting(FlightInputDTO flightInput)
         {
             return _flightRepository.GetAllFlights()
                 .Any(f => f.AirplaneId == flightInput.AirplaneId
                 && f.ScheduledDepartureDate < flightInput.ScheduledDepartureDate.Add(flightInput.Duration)
                 && f.ScheduledArrivalDate > flightInput.ScheduledDepartureDate);
+        }
+
+        public bool IsFlightConflictingForReschedule(Flight flightInput)
+        {
+            return _flightRepository.GetAllFlights()
+                .Any(f => f.AirplaneId == flightInput.AirplaneId
+                && f.ScheduledDepartureDate < flightInput.ScheduledDepartureDate.Add(flightInput.Duration)
+                && f.ScheduledArrivalDate > flightInput.ScheduledDepartureDate
+                && f.FlightNo != flightInput.FlightNo);
         }
 
         public int UpdateFlightStatus(Flight flight)

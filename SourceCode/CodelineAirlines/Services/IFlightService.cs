@@ -12,9 +12,11 @@ namespace CodelineAirlines.Services
         List<Flight> GetFlightsByDateInterval(DateTime startDate, DateTime endDate);
         Flight GetPriorFlight(int airplaneId);
         bool IsFlightConflicting(FlightInputDTO flightInput);
+        bool IsFlightConflictingForReschedule(Flight flightInput);
         Flight GetFlightByIdWithRelatedData(int id);
         int UpdateFlightStatus(Flight flight);
 
         int CancelFlight(Flight flight);
+        Flight GetPriorFlightForReschedule(int airplaneId, int flightNo);
     }
 }

@@ -14,5 +14,7 @@ namespace CodelineAirlines.Services
         FlightDetailedOutputDTO GetFlightDetails(int flightNo);
 
         void AddReview(ReviewInputDTO review);
+
+        public (int FlightNo, DateTime NewDepartureDate) RescheduleFlight(int flightNo, DateTime newDate, int airplaneId = -1);
     }
 }

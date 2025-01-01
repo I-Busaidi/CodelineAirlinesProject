@@ -101,6 +101,20 @@ namespace CodelineAirlines.Controllers
             }
         }
 
+        [HttpPost("RescheduleFlight/{flightNo}")]
+        public IActionResult RescheduleFlight(int flightNo, DateTime newDate, int airplaneId = -1)
+        {
+            try
+            {
+                var result = _compoundService.RescheduleFlight(flightNo, newDate, airplaneId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("GetFlights")]
         public IActionResult GetFlights
             (
