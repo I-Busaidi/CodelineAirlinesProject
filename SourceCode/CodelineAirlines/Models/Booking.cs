@@ -17,6 +17,7 @@ namespace CodelineAirlines.Models
         [ForeignKey("Flight")]
         public int FlightNo { get; set; }
 
+
         public string? SeatNo { get; set; }
 
         [Required]

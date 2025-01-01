@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CodelineAirlines.DTOs.AirportDTOs;
 using CodelineAirlines.DTOs.FlightDTOs;
 using CodelineAirlines.Enums;
 using CodelineAirlines.Models;
@@ -12,16 +13,18 @@ namespace CodelineAirlines.Services
         private readonly IAirportService _airportService;
         private readonly IAirplaneService _airplaneService;
         private readonly IBookingService _bookingService;
+        private readonly ISeatTemplateService _seatTemplateService;
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
 
-        public CompoundService(IFlightService flightService, IAirportService airportService, IAirplaneService airplaneService, IMapper mapper, IBookingService bookingService, ApplicationDbContext context)
+        public CompoundService(IFlightService flightService, IAirportService airportService, IAirplaneService airplaneService, IMapper mapper, IBookingService bookingService, ApplicationDbContext context, ISeatTemplateService seatTemplateService)
         {
             _context = context;
             _bookingService = bookingService;
             _flightService = flightService;
             _airportService = airportService;
             _airplaneService = airplaneService;
+            _seatTemplateService = seatTemplateService;
             _mapper = mapper;
         }
 
@@ -124,6 +127,89 @@ namespace CodelineAirlines.Services
                     throw new InvalidOperationException("An error occured when canceling flight");
                 }
             }
+        }
+
+        public FlightDetailedOutputDTO GetFlightDetails(int flightNo)
+        {
+            var flight = _flightService.GetFlightByIdWithRelatedData(flightNo);
+            var seatTemplate = _seatTemplateService.GetSeatTemplatesByModel(flight.Airplane.AirplaneModel).ToList();
+            DateTime? departureDate;
+            DateTime? arrivalDate;
+            int bookingsCount = 0;
+            int bookedEconomy = 0;
+            int bookedBusiness = 0;
+            int bookedFirst = 0;
+            decimal rating = 0;
+
+            if (flight.FlightRating != null)
+            {
+                rating = flight.FlightRating.Value;
+            }
+
+            if (flight.Bookings != null || flight.Bookings.Count > 0)
+            {
+                bookingsCount = flight.Bookings.Count;
+                foreach (var booking in flight.Bookings)
+                {
+                    foreach (var seat in seatTemplate)
+                    {
+                        if (booking.SeatNo == seat.SeatNumber)
+                        {
+                            if (seat.Type == "Economy")
+                            {
+                                bookedEconomy++;
+                            }
+                            if (seat.Type == "Business")
+                            {
+                                bookedBusiness++;
+                            }
+                            if (seat.Type == "First Class")
+                            {
+                                bookedFirst++;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            if (flight.ActualDepartureDate != null)
+            {
+                departureDate = flight.ActualDepartureDate;
+            }
+            else
+            {
+                departureDate = flight.ScheduledDepartureDate;
+            }
+
+            if (flight.EstimatedArrivalDate != null)
+            {
+                arrivalDate = flight.EstimatedArrivalDate;
+            }
+            else
+            {
+                arrivalDate = flight.ScheduledArrivalDate;
+            }
+
+            FlightDetailedOutputDTO flightDetails = new FlightDetailedOutputDTO
+            {
+                FlightNo = flight.FlightNo,
+                Source = _mapper.Map<AirportOutputDTO>(flight.SourceAirport),
+                Destination = _mapper.Map<AirportOutputDTO>(flight.DestinationAirport),
+                FlightStatus = Enum.GetName(typeof(FlightStatus), flight.StatusCode),
+                AirplaneModel = flight.Airplane.AirplaneModel,
+                Cost = flight.Cost,
+                Duration = flight.Duration,
+                DepartureDate = departureDate,
+                ArrivalDate = arrivalDate,
+                BookingsCount = flight.Bookings.Count,
+                BookedEconomySeatsCount = bookedEconomy,
+                BookedBusinessSeatsCount = bookedBusiness,
+                BookedFirstClassSeatsCount = bookedFirst,
+                Rating = rating
+            };
+
+            return flightDetails;
         }
 
         private bool CheckAirplaneAvailability(Airplane airplane, Airport srcAirport, FlightInputDTO flightInput)

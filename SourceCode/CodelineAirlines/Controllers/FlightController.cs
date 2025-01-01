@@ -80,5 +80,25 @@ namespace CodelineAirlines.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [AllowAnonymous]
+        [HttpGet("GetFlightDetails/{flightNo}")]
+        public IActionResult GetFlightDetails(int flightNo)
+        {
+            try
+            {
+                var result = _compoundService.GetFlightDetails(flightNo);
+                return Ok(result);
+            }
+
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
