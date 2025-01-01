@@ -1,4 +1,5 @@
-﻿using Swashbuckle.AspNetCore.Annotations;
+﻿using Newtonsoft.Json.Converters;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace CodelineAirlines.Enums
 {

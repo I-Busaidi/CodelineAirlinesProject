@@ -81,5 +81,11 @@ namespace CodelineAirlines.Repositories
                 throw new Exception("Booking not found.");
             }
         }
+
+        public int CancelBookingsRange(List<Booking> bookings)
+        {
+            _context.Bookings.RemoveRange(bookings);
+            return bookings.Count();
+        }
     }
 }
