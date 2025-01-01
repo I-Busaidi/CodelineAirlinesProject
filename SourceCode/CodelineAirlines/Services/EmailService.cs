@@ -16,10 +16,10 @@ namespace CodelineAirlines.Services
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             try
-            {   
+            { 
                 var client = new System.Net.Mail.SmtpClient("smtp.gmail.com", 587)
                 {
-                    Credentials = new NetworkCredential("tasnimalbrashdi@gmail.com", "lchi wfky dqso wefm"),
+                    Credentials = new NetworkCredential("codelineairlines@gmail.com", "thgp ysew amvu eyrj"),
                     EnableSsl = true
                 };
 
