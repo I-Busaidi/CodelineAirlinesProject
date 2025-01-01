@@ -1,4 +1,5 @@
 ﻿using CodelineAirlines.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CodelineAirlines.Repositories
 {
@@ -34,6 +35,12 @@ namespace CodelineAirlines.Repositories
             }
 
         }
+        public IEnumerable<Review> GetReviewsByUserId(int userId)
+        {
+            return _context.Reviews.Include(r => r.Reviewer)     // Include navigation properties
+                .Include(r => r.FlightReview).Where(r => r.Reviewer.UserId == userId).ToList();
+        }
+
         public Review GetReviewById(int id)
         {
             return _context.Reviews.FirstOrDefault(p => p.ReviewId == id);

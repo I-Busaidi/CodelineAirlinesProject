@@ -9,5 +9,6 @@ namespace CodelineAirlines.Repositories
         void UpdateReview(Review updatedReview);
         List<Review> GetAllReview();
         void DeleteReview(int id);
+        IEnumerable<Review> GetReviewsByUserId(int userId);
     }
 }
