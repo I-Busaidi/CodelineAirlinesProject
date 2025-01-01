@@ -1,4 +1,5 @@
 ﻿using CodelineAirlines.DTOs.PassengerDTOs;
+using CodelineAirlines.Models;
 
 namespace CodelineAirlines.Services
 {
@@ -8,5 +9,7 @@ namespace CodelineAirlines.Services
         PassengerOutputDTO GetPassengerProfile(int userId);
         void UpdatePassengerDetails(int userId, PassengerInputDTOs passengerInputDTO);
         int GetLoyaltyPoints(int userId);
+        Passenger GetPassengerByPassport(string passport);
+
     }
 }

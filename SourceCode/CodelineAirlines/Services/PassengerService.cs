@@ -73,6 +73,23 @@ namespace CodelineAirlines.Services
   
             return _passengerRepository.GetLoyaltyPointsByUserId(userId);
         }
+        public Passenger GetPassengerByPassport(string passport)
+        {
+            if (string.IsNullOrEmpty(passport))
+            {
+                throw new ArgumentException("Passport number cannot be null or empty.", nameof(passport));
+            }
+
+            // Retrieve the passenger from the repository
+            var passenger = _passengerRepository.GetByPassport(passport);
+
+            if (passenger == null)
+            {
+                throw new KeyNotFoundException($"Passenger with passport {passport} not found.");
+            }
+
+            return passenger;
+        }
 
     }
 }

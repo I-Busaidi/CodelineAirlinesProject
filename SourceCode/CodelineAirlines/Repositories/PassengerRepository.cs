@@ -60,7 +60,10 @@ namespace CodelineAirlines.Repositories
                 throw new InvalidOperationException("Passenger profile not found.");
             }
         }
-
+        public Passenger GetByPassport(string passport)
+        {
+            return _context.Set<Passenger>().FirstOrDefault(p => p.Passport == passport);
+        }
         public int GetLoyaltyPointsByUserId(int userId)
         {
             // Find the passenger by UserId

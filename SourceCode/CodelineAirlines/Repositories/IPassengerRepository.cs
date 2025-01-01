@@ -10,5 +10,6 @@ namespace CodelineAirlines.Repositories
         Passenger GetPassengerByPassport(string passportNumber);
         void UpdatePassenger(Passenger passenger);
         int GetLoyaltyPointsByUserId(int userId);
+        Passenger GetByPassport(string passport);
     }
 }
