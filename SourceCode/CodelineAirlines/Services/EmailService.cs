@@ -19,7 +19,7 @@ namespace CodelineAirlines.Services
             {   
                 var client = new System.Net.Mail.SmtpClient("smtp.gmail.com", 587)
                 {
-                    Credentials = new NetworkCredential("tasnimalbrashdi@gmail.com", "bibo gyqg vjgd vcmi"),
+                    Credentials = new NetworkCredential("tasnimalbrashdi@gmail.com", "lchi wfky dqso wefm"),
                     EnableSsl = true
                 };
 
