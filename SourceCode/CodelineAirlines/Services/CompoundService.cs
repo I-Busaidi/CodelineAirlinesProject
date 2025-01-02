@@ -60,12 +60,16 @@ namespace CodelineAirlines.Services
                 throw new KeyNotFoundException("Destination airport not found");
             }
 
-            if (!CheckAirplaneAvailability(airplane, sourceAirport, flightInput))
+            var flight = _mapper.Map<Flight>(flightInput);
+            flight.Airplane = airplane;
+            flight.SourceAirport = sourceAirport;
+            flight.DestinationAirport = destinationAirport;
+
+            if (!CheckAirplaneAvailability(flight))
             {
-                throw new InvalidOperationException("Airplane is not available for this flight");
+                throw new InvalidOperationException("Airplane is not available for this flight, or does not align with the airplane's flight schedule.");
             }
 
-            var flight = _mapper.Map<Flight>(flightInput);
             return _flightService.AddFlight(flight);
         }
 
@@ -82,7 +86,13 @@ namespace CodelineAirlines.Services
                 throw new InvalidOperationException("Cannot reschedule a flight 3 days before the flight departure date");
             }
 
+            if (newDate == flight.ScheduledDepartureDate)
+            {
+                throw new InvalidOperationException("New date cannot be the same as original date.");
+            }
+
             flight.ScheduledDepartureDate = newDate;
+            flight.ActualDepartureDate = newDate;
 
             if (airplaneId == -1)
             {
@@ -99,9 +109,9 @@ namespace CodelineAirlines.Services
                 throw new KeyNotFoundException("Airplane not found");
             }
 
-            if (!CheckAirplaneAvailabilityForReschedule(flight))
+            if (!CheckAirplaneAvailability(flight, flightNo))
             {
-                throw new InvalidOperationException("Airplane is not available for this flight");
+                throw new InvalidOperationException("Airplane is not available for this flight, or does not align with the airplane's flight schedule.");
             }
 
             using (var transcation = _context.Database.BeginTransaction())
@@ -109,6 +119,7 @@ namespace CodelineAirlines.Services
                 try
                 {
                     flight.StatusCode = 6;
+                    // CancelFlight is a function that only update status not actually cancelling it.
                     int updatedFlightNo = _flightService.CancelFlight(flight);
 
                     var bookings = flight.Bookings.Select(b => b.BookingId).ToList();
@@ -242,7 +253,7 @@ namespace CodelineAirlines.Services
             }
 
 
-            if (flight.ActualDepartureDate != null)
+            if (flight.ActualDepartureDate != null && flight.ActualDepartureDate > flight.ScheduledDepartureDate)
             {
                 departureDate = flight.ActualDepartureDate;
             }
@@ -251,7 +262,7 @@ namespace CodelineAirlines.Services
                 departureDate = flight.ScheduledDepartureDate;
             }
 
-            if (flight.EstimatedArrivalDate != null)
+            if (flight.EstimatedArrivalDate != null && flight.EstimatedArrivalDate > flight.ScheduledArrivalDate)
             {
                 arrivalDate = flight.EstimatedArrivalDate;
             }
@@ -281,55 +292,42 @@ namespace CodelineAirlines.Services
             return flightDetails;
         }
 
-        private bool CheckAirplaneAvailabilityForReschedule(Flight flightInput)
+        private bool CheckAirplaneAvailability(Flight flight, int flightNo = -1)
         {
-            var priorFlight = _flightService.GetPriorFlightForReschedule(flightInput.Airplane.AirplaneId, flightInput.FlightNo);
-            if (priorFlight != null)
+            var airplaneFlights = _flightService.GetAirplaneFlightSchedule(flight.AirplaneId, flightNo);
+            if (airplaneFlights != null)
             {
-                if (priorFlight.DestinationAirportId != flightInput.SourceAirport.AirportId || priorFlight.ScheduledArrivalDate >= flightInput.ScheduledDepartureDate)
+                var flightsList = airplaneFlights.Append(flight).OrderBy(f => f.ScheduledDepartureDate).ToList();
+
+                for (int i = 0;i < flightsList.Count; i++)
                 {
-                    return false;
+                    if (i == 0)
+                    {
+                        if (flightsList[0].SourceAirportId != flightsList[0].Airplane.CurrentAirportId)
+                        {
+                            return false;
+                        }
+                    }
+
+                    if ((i+1) <= flightsList.Count - 1)
+                    {
+                        if (flightsList[i].DestinationAirportId != flightsList[i+1].SourceAirportId)
+                        {
+                            return false;
+                        }
+
+                        if (flightsList[i].ScheduledArrivalDate.AddHours(1) > flightsList[i + 1].ScheduledDepartureDate)
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
-            else
-            {
-                if (flightInput.Airplane.CurrentAirportId != flightInput.SourceAirport.AirportId)
-                {
-                    return false;
-                }
-            }
-
-            if (_flightService.IsFlightConflictingForReschedule(flightInput))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private bool CheckAirplaneAvailability(Airplane airplane, Airport srcAirport, FlightInputDTO flightInput)
-        {
-            var priorFlight = _flightService.GetPriorFlight(airplane.AirplaneId);
-            if (priorFlight != null)
-            {
-                if (priorFlight.DestinationAirportId != srcAirport.AirportId || priorFlight.ScheduledArrivalDate >= flightInput.ScheduledDepartureDate)
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (airplane.CurrentAirportId != srcAirport.AirportId)
-                {
-                    return false;
-                }
-            }
-
-            if (_flightService.IsFlightConflicting(flightInput))
-            {
-                return false;
-            }
-
+          
             return true;
         }
         public void AddReview(ReviewInputDTO review)

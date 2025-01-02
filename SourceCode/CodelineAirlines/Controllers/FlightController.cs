@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CodelineAirlines.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/[Controller]")]
     public class FlightController : ControllerBase
@@ -39,7 +39,7 @@ namespace CodelineAirlines.Controllers
             }
         }
 
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         [HttpPatch("UpdateFlightStatus/{flightNo}")]
         public IActionResult UpdateFlightStatus(int flightNo, [FromBody] FlightStatusRequest statusRequest)
         {
@@ -62,7 +62,7 @@ namespace CodelineAirlines.Controllers
             }
         }
 
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         [HttpDelete("CancelFlight/{FlightNo}")]
         public IActionResult CancelFlight(int FlightNo, string condition)
         {
@@ -81,7 +81,7 @@ namespace CodelineAirlines.Controllers
             }
         }
 
-        [AllowAnonymous]
+        //[AllowAnonymous]
         [HttpGet("GetFlightDetails/{flightNo}")]
         public IActionResult GetFlightDetails(int flightNo)
         {
@@ -101,13 +101,13 @@ namespace CodelineAirlines.Controllers
             }
         }
 
-        [HttpPost("RescheduleFlight/{flightNo}")]
+        [HttpPut("RescheduleFlight/{flightNo}/{newDate}")]
         public IActionResult RescheduleFlight(int flightNo, DateTime newDate, int airplaneId = -1)
         {
             try
             {
                 var result = _compoundService.RescheduleFlight(flightNo, newDate, airplaneId);
-                return Ok(result);
+                return Ok($"Flight {result.FlightNo} has been rescheduled to {result.NewDepartureDate.ToString("dd/MM/yyyy ddd ~ hh:mm:ss tt")}");
             }
             catch (Exception ex)
             {
