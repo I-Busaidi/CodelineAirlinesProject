@@ -23,7 +23,7 @@ namespace CodelineAirlines.Services
                     EnableSsl = true
                 };
 
-                var message = new MailMessage("tasnimalbrashdi@gmail.com", toEmail, subject, body);
+                var message = new MailMessage("codelineairlines@gmail.com", toEmail, subject, body);
 
                 await client.SendMailAsync(message);
 

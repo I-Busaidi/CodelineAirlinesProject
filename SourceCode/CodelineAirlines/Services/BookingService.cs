@@ -11,6 +11,7 @@ namespace CodelineAirlines.Services
         private readonly IBookingRepository _bookingRepository;
         private readonly IEmailService _emailService;
         private readonly ISeatTemplateService _seatTemplateService;
+     
 
         public BookingService(IFlightService flightService, IPassengerRepository passengerRepository, IBookingRepository bookingRepository, IEmailService emailService, ISeatTemplateService seatTemplateService)
         {

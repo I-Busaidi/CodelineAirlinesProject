@@ -6,6 +6,7 @@ namespace CodelineAirlines.DTOs.ReviewDTOs
     public class ReviewInputDTO
     {    //ignored during input,use for output only
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] // Available in output but ignored for input
+
         public int? ReviewId { get; set; }
         [Required]
         [StringLength(50, ErrorMessage = "Reviewer Passport number cannot exceed 50 characters.")]

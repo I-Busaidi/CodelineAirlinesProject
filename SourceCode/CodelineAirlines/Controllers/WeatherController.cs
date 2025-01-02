@@ -7,7 +7,7 @@ namespace CodelineAirlines.Controllers
     [ApiController]
     [Route("api/[Controller]")]
     public class WeatherController : ControllerBase
-    {
+    { 
         private readonly WeatherService _weatherService;
 
         public WeatherController(WeatherService weatherService)
