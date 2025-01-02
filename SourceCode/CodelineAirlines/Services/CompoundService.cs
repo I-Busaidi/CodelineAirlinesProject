@@ -142,20 +142,6 @@ namespace CodelineAirlines.Services
             }
         }
 
-        public (int, string) UpdateFlightStatus(int flightId, FlightStatus flightStatus)
-        {
-            var flight = _flightService.GetFlightByIdWithRelatedData(flightId);
-            if (flight == null)
-            {
-                throw new KeyNotFoundException("Could not find flight");
-            }
-
-            flight.StatusCode = (int)flightStatus;
-
-            _flightService.UpdateFlightStatus(flight);
-            return (flight.FlightNo, flightStatus.ToString());
-        }
-
         public (int flightNo, int BookingsCount) CancelFlight(int flightId, string condition)
         {
             var flight = _flightService.GetFlightByIdWithRelatedData(flightId);
@@ -290,6 +276,56 @@ namespace CodelineAirlines.Services
             };
 
             return flightDetails;
+        }
+        public (int FlightNo, string? Status) Land(int flightNo)
+        {
+            var flight = _flightService.GetFlightByIdWithRelatedData(flightNo);
+            if (flight == null)
+            {
+                throw new KeyNotFoundException("Could retrieve flight information.");
+            }
+
+            if (flight.StatusCode == 1 || flight.StatusCode == 2)
+            {
+                throw new InvalidOperationException("Flight is still in boarding state.");
+            }
+            else if (flight.StatusCode == 4)
+            {
+                throw new InvalidOperationException("Flight has already arrived.");
+            }
+            else if (flight.StatusCode == 5)
+            {
+                throw new InvalidOperationException("Flight has been cancelled.");
+            }
+            else if (flight.StatusCode == 0 || flight.StatusCode == 6)
+            {
+                throw new InvalidOperationException("Flight is still pending.");
+            }
+
+            flight.StatusCode = 4;
+
+            UpdateAirplaneCurrentAirportId(flight.AirplaneId, flight.DestinationAirport.AirportName);
+
+            return (_flightService.CancelFlight(flight), Enum.GetName(typeof(FlightStatus), flight.StatusCode));
+        }
+
+        private void UpdateAirplaneCurrentAirportId(int airplaneId, string airportName)
+        {
+            var airplane = _airplaneService.GetAirplaneByIdWithRelatedData(airplaneId);
+            if (airplane == null)
+            {
+                throw new KeyNotFoundException("Could not find flight airplane.");
+            }
+
+            var airport = _airportService.GetAirportByNameWithRelatedData(airportName);
+            if (airport == null)
+            {
+                throw new KeyNotFoundException("Could not find landing airport.");
+            }
+
+            airplane.CurrentAirportId = airport.AirportId;
+
+            _airplaneService.UpdateAirplane(airplane);
         }
 
         private bool CheckAirplaneAvailability(Flight flight, int flightNo = -1)

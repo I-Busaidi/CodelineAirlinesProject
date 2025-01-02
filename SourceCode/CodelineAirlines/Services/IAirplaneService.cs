@@ -11,5 +11,6 @@ namespace CodelineAirlines.Services
         bool UpdateAirplane(int id, AirplaneCreateDTO airplaneCreateDto);  // Update method
         bool DeleteAirplane(int id);  // Method to delete an airplane
         Airplane GetAirplaneByIdWithRelatedData(int id);
+        void UpdateAirplane(Airplane airplane);
     }
 }

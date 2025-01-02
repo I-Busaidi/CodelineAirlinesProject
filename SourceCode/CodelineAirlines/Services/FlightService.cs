@@ -69,9 +69,80 @@ namespace CodelineAirlines.Services
                 && f.FlightNo != flightNo);
         }
 
-        public int UpdateFlightStatus(Flight flight)
+        public (int FlightNo, string? Status) StartAirplaneBoarding(int flightNo)
         {
-            return _flightRepository.UpdateFlight(flight);
+            var flight = _flightRepository.GetFlightById(flightNo);
+            if (flight == null)
+            {
+                throw new KeyNotFoundException("Could retrieve flight information.");
+            }
+
+            if (flight.StatusCode == 1 || flight.StatusCode == 2)
+            {
+                throw new InvalidOperationException("Flight is already in boarding state.");
+            }
+            else if (flight.StatusCode == 3)
+            {
+                throw new InvalidOperationException("Flight has already taken off.");
+            }
+            else if (flight.StatusCode == 4)
+            {
+                throw new InvalidOperationException("Flight has already arrived to destination.");
+            }
+            else if (flight.StatusCode == 5)
+            {
+                throw new InvalidOperationException("Flight has been cancelled.");
+            }
+
+            if (flight.Airplane.CurrentAirportId != flight.SourceAirportId)
+            {
+                throw new InvalidOperationException("Airplane is not available in the airport yet.");
+            }
+
+            if (flight.ScheduledDepartureDate.AddMinutes(15) >= DateTime.Now)
+            {
+                flight.StatusCode = 1;
+            }
+            else
+            {
+                flight.StatusCode = 2;
+            }
+
+            flight.ActualDepartureDate = DateTime.Now;
+
+            return (_flightRepository.UpdateFlight(flight), Enum.GetName(typeof(FlightStatus), flight.StatusCode));
+        }
+
+        public (int FlightNo, string? Status) StartFlight(int flightNo)
+        {
+            var flight = _flightRepository.GetFlightById(flightNo);
+            if (flight == null)
+            {
+                throw new KeyNotFoundException("Could retrieve flight information.");
+            }
+
+            if (flight.StatusCode == 0 || flight.StatusCode == 6)
+            {
+                throw new InvalidOperationException("Flight is not in boarding state.");
+            }
+            else if (flight.StatusCode == 3)
+            {
+                throw new InvalidOperationException("Flight has already taken off.");
+            }
+            else if (flight.StatusCode == 4)
+            {
+                throw new InvalidOperationException("Flight has already arrived to destination.");
+            }
+            else if (flight.StatusCode == 5)
+            {
+                throw new InvalidOperationException("Flight has been cancelled.");
+            }
+
+            flight.StatusCode = 3;
+
+            flight.ActualDepartureDate = DateTime.Now;
+
+            return (_flightRepository.UpdateFlight(flight), Enum.GetName(typeof(FlightStatus), flight.StatusCode));
         }
 
         public int CancelFlight(Flight flight)

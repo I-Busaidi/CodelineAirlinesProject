@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CodelineAirlines.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/[Controller]")]
     public class FlightController : ControllerBase
@@ -20,7 +20,7 @@ namespace CodelineAirlines.Controllers
             _compoundService = compoundService;
         }
 
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost("AddFlight")]
         public IActionResult AddFlight([FromBody] FlightInputDTO flightInput)
         {
@@ -39,13 +39,36 @@ namespace CodelineAirlines.Controllers
             }
         }
 
-        //[Authorize(Roles = "admin")]
-        [HttpPatch("UpdateFlightStatus/{flightNo}")]
-        public IActionResult UpdateFlightStatus(int flightNo, [FromBody] FlightStatusRequest statusRequest)
+        [Authorize(Roles = "admin")]
+        [HttpPatch("UpdateFlightStatusToBoarding/{flightNo}")]
+        public IActionResult UpdateFlightStatusToBoarding(int flightNo)
         {
             try
             {
-                var result = _compoundService.UpdateFlightStatus(flightNo, statusRequest.FlightStatus);
+                var result = _flightService.StartAirplaneBoarding(flightNo);
+                return Ok("Status of flight with number " + result.Item1 + " has been updated to Boarding(" + result.Item2+")");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpPatch("UpdateFlightStatusToInFlight/{flightNo}")]
+        public IActionResult UpdateFlightStatusToInFlight(int flightNo)
+        {
+            try
+            {
+                var result = _flightService.StartFlight(flightNo);
                 return Ok("Status of flight with number " + result.Item1 + " has been updated to " + result.Item2);
             }
             catch (KeyNotFoundException ex)
@@ -62,7 +85,30 @@ namespace CodelineAirlines.Controllers
             }
         }
 
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
+        [HttpPatch("UpdateFlightStatusToArrived/{flightNo}")]
+        public IActionResult UpdateFlightStatusToArrived(int flightNo)
+        {
+            try
+            {
+                var result = _compoundService.Land(flightNo);
+                return Ok("Status of flight with number " + result.Item1 + " has been updated to " + result.Item2);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize(Roles = "admin")]
         [HttpDelete("CancelFlight/{FlightNo}")]
         public IActionResult CancelFlight(int FlightNo, string condition)
         {
@@ -81,7 +127,7 @@ namespace CodelineAirlines.Controllers
             }
         }
 
-        //[AllowAnonymous]
+        [AllowAnonymous]
         [HttpGet("GetFlightDetails/{flightNo}")]
         public IActionResult GetFlightDetails(int flightNo)
         {

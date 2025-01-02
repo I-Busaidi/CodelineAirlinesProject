@@ -92,6 +92,12 @@ namespace CodelineAirlines.Services
             return true;  // Successfully updated
         }
 
+        public void UpdateAirplane(Airplane airplane)
+        {
+            // Update the airplane in the repository
+            _airplaneRepository.Update(airplane);
+        }
+
         // Delete an airplane's details
         public bool DeleteAirplane(int id)
         {
