@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CodelineAirlines.DTOs.PassengerDTOs;
 using CodelineAirlines.DTOs.ReviewDTOs;
+using CodelineAirlines.Enums;
 using CodelineAirlines.Models;
 using CodelineAirlines.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -24,14 +25,26 @@ namespace CodelineAirlines.Controllers
         }
 
         [HttpPost("AddReview")]
-        public IActionResult AddReview([FromQuery] ReviewInputDTO reviewInput)
+        public IActionResult AddReview([FromBody] ReviewInputDTO reviewInput)
         {
             try
-            {   //Check here after done-----------------------------------
-        
-                // Retrieve the current user's passport
-                var reviewerPassport = reviewInput.ReviewerPassport;
+            {     // Validate the user ID from JWT
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    throw new UnauthorizedAccessException("User ID is missing or invalid.");
+                }
 
+              
+
+
+                var newReview = new Review
+                {
+                    ReviewerPassport = reviewInput.ReviewerPassport, // Use the passport as FK
+                    FlightNo = reviewInput.FlightNo,
+                    Rating = reviewInput.Rating,
+                    Comment = reviewInput.Comment
+                };
                 // Call the service method to add the review
                 _compoundService.AddReview(reviewInput);
 
@@ -91,37 +104,7 @@ namespace CodelineAirlines.Controllers
                 return StatusCode(500, new { Message = "An error occurred while retrieving the reviews.", Error = ex.Message });
             }
         }
-        [HttpGet("user-reviews")]
-        public IActionResult GetAllUserReviews()
-        {
-            try
-            {
-                // Retrieve the current user's ID from JWT claims
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-             
-
-                // Call the service to fetch the reviews
-                var reviews = _reviewService.GetAllReviewsByUser(userId);
-
-                return Ok(new { Message = "Reviews retrieved successfully.", Reviews = reviews });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { Message = ex.Message });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return StatusCode(403, new { Message = ex.Message });
-            }
-            catch (ApplicationException ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Message = "An error occurred while retrieving the reviews.", Error = ex.Message });
-            }
-        }
+     
 
         // Update an existing review
         [HttpPut("{reviewId}")]

@@ -14,7 +14,7 @@ namespace CodelineAirlines.Services
         private readonly IReviewRepository _reviewRepository;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IFlightRepository _flightRepository;
+     
 
 
         public ReviewService(IReviewRepository reviewRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
@@ -23,11 +23,7 @@ namespace CodelineAirlines.Services
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
         }
-        public void AddReview(ReviewInputDTO review)// MOVE TO COMPOUND SERVICE 
-        {
-            // Retrieve the flight status
-            var flight = _flightRepository.GetFlightById(review.FlightNo);
-
+       
         public void AddReview(Review review)
         {
 

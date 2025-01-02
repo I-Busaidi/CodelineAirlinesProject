@@ -261,9 +261,15 @@ namespace CodelineAirlines.Services
             }
 
             // Map the input DTO to the Review 
-            var newReview = _mapper.Map<Review>(review);
+            var newReview = new Review
+            {
+                ReviewerPassport = review.ReviewerPassport, // Map passport
+                FlightNo = review.FlightNo,                 // Map flight number
+                Rating = review.Rating,                     // Map rating
+                Comment = review.Comment                    // Map comment (optional field)
+            };
 
-        
+
             _reviewService.AddReview(newReview);
         }
 
