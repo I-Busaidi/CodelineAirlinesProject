@@ -332,5 +332,28 @@ namespace CodelineAirlines.Services
                 _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
             }
         }
+
+        public void RescheduledFlightBookings(List<int> bookingsIds, DateTime newDate)
+        {
+            List<Booking> bookings = new List<Booking>();
+            for (int i = 0; i < bookingsIds.Count; i++)
+            {
+                bookings.Add(_bookingRepository.GetBookingById(bookingsIds[i]));
+            }
+            // Send email about the cancellation
+            SendFlightBookingsRescheduleEmail(bookings, newDate);  // Pass the booking object to the email method
+        }
+
+        private void SendFlightBookingsRescheduleEmail(List<Booking> bookings, DateTime newDate)
+        {
+            foreach (Booking booking in bookings)
+            {
+                string subject = $"Booked Flight Rescheduled to {newDate}";
+                string body = $"Dear {booking.Passenger.User.UserName},\n" +
+                              $"We regret to inform you that your booked flight {booking.FlightNo} has been rescheduled to {newDate}.\n" +
+                              $"We apologize for any inconvenience caused.";
+                _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
+            }
+        }
     }
 }

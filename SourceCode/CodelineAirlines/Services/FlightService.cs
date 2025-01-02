@@ -29,13 +29,27 @@ namespace CodelineAirlines.Services
             return _flightRepository.AddFlight(flightInput);
         }
 
-        public List<Flight> GetAllFlights()
+        public List<Flight> GetAllFlightsWithRelatedData()
         {
             var flights = _flightRepository.GetAllFlights()
                 .OrderBy(f => f.StatusCode)
                 .ToList();
 
             return flights;
+        }
+
+        public List<FlightOutputDTO> GetAllFlights()
+        {
+            var flights = _flightRepository.GetAllFlights()
+                .OrderBy(f => f.StatusCode)
+                .ToList();
+
+            if (flights == null || flights.Count == 0)
+            {
+                throw new InvalidOperationException("No flights found");
+            }
+
+            return _mapper.Map<List<FlightOutputDTO>>(flights);
         }
 
         public List<Flight> GetFlightsByDateInterval(DateTime startDate, DateTime endDate)
@@ -55,12 +69,29 @@ namespace CodelineAirlines.Services
                 .FirstOrDefault();
         }
 
+        public Flight GetPriorFlightForReschedule(int airplaneId, int flightNo)
+        {
+            return _flightRepository.GetAllFlights()
+                .Where(f => f.AirplaneId == airplaneId && f.StatusCode < 4 && f.FlightNo != flightNo)
+                .OrderByDescending(f => f.ScheduledDepartureDate)
+                .FirstOrDefault();
+        }
+
         public bool IsFlightConflicting(FlightInputDTO flightInput)
         {
             return _flightRepository.GetAllFlights()
                 .Any(f => f.AirplaneId == flightInput.AirplaneId
                 && f.ScheduledDepartureDate < flightInput.ScheduledDepartureDate.Add(flightInput.Duration)
                 && f.ScheduledArrivalDate > flightInput.ScheduledDepartureDate);
+        }
+
+        public bool IsFlightConflictingForReschedule(Flight flightInput)
+        {
+            return _flightRepository.GetAllFlights()
+                .Any(f => f.AirplaneId == flightInput.AirplaneId
+                && f.ScheduledDepartureDate < flightInput.ScheduledDepartureDate.Add(flightInput.Duration)
+                && f.ScheduledArrivalDate > flightInput.ScheduledDepartureDate
+                && f.FlightNo != flightInput.FlightNo);
         }
 
         public int UpdateFlightStatus(Flight flight)
