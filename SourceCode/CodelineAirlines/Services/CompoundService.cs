@@ -19,9 +19,10 @@ namespace CodelineAirlines.Services
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IReviewService _reviewService;
+        private readonly IPassengerService _passengerService;
 
 
-        public CompoundService(IFlightService flightService, IAirportService airportService, IAirplaneService airplaneService, IMapper mapper, IBookingService bookingService, ApplicationDbContext context, ISeatTemplateService seatTemplateService, IReviewService reviewService)
+        public CompoundService(IFlightService flightService, IAirportService airportService, IAirplaneService airplaneService, IMapper mapper, IBookingService bookingService, ApplicationDbContext context, ISeatTemplateService seatTemplateService, IReviewService reviewService,IPassengerService passengerService)
         {
             _context = context;
             _bookingService = bookingService;
@@ -31,6 +32,7 @@ namespace CodelineAirlines.Services
             _seatTemplateService = seatTemplateService;
             _reviewService = reviewService;
             _mapper = mapper;
+            _passengerService = passengerService;
           }
 
         public int AddFlight(FlightInputDTO flightInput)
@@ -347,15 +349,23 @@ namespace CodelineAirlines.Services
             {
                 throw new InvalidOperationException("Reviews can only be added for flights that have arrived.");
             }
+            // Retrieve the reviewer (passenger) details
+            var reviewer = _passengerService.GetPassengerByPassport(review.ReviewerPassport);
+            if (reviewer == null)
+            {
+                throw new KeyNotFoundException($"Passenger with passport {review.ReviewerPassport} not found.");
+            }
 
-            // Map the input DTO to the Review 
+            // Create a new Review object
             var newReview = new Review
             {
                 ReviewerPassport = review.ReviewerPassport, // Map passport
                 FlightNo = review.FlightNo,                 // Map flight number
                 Rating = review.Rating,                     // Map rating
-                Comment = review.Comment                    // Map comment (optional field)
+                Comment = review.Comment,                   // Map comment (optional field)
+                Reviewer = reviewer                         // Set navigation property
             };
+
 
 
             _reviewService.AddReview(newReview);
