@@ -61,37 +61,12 @@ namespace CodelineAirlines.Services
             return flights;
         }
 
-        public Flight GetPriorFlight(int airplaneId)
+        public IEnumerable<Flight> GetAirplaneFlightSchedule(int airplaneId, int flightNo = -1)
         {
             return _flightRepository.GetAllFlights()
-                .Where(f => f.AirplaneId == airplaneId && f.StatusCode < 4)
-                .OrderByDescending(f => f.ScheduledDepartureDate)
-                .FirstOrDefault();
-        }
-
-        public Flight GetPriorFlightForReschedule(int airplaneId, int flightNo)
-        {
-            return _flightRepository.GetAllFlights()
-                .Where(f => f.AirplaneId == airplaneId && f.StatusCode < 4 && f.FlightNo != flightNo)
-                .OrderByDescending(f => f.ScheduledDepartureDate)
-                .FirstOrDefault();
-        }
-
-        public bool IsFlightConflicting(FlightInputDTO flightInput)
-        {
-            return _flightRepository.GetAllFlights()
-                .Any(f => f.AirplaneId == flightInput.AirplaneId
-                && f.ScheduledDepartureDate < flightInput.ScheduledDepartureDate.Add(flightInput.Duration)
-                && f.ScheduledArrivalDate > flightInput.ScheduledDepartureDate);
-        }
-
-        public bool IsFlightConflictingForReschedule(Flight flightInput)
-        {
-            return _flightRepository.GetAllFlights()
-                .Any(f => f.AirplaneId == flightInput.AirplaneId
-                && f.ScheduledDepartureDate < flightInput.ScheduledDepartureDate.Add(flightInput.Duration)
-                && f.ScheduledArrivalDate > flightInput.ScheduledDepartureDate
-                && f.FlightNo != flightInput.FlightNo);
+                .Where(f => f.AirplaneId == airplaneId 
+                && (f.StatusCode < 4 || f.StatusCode == 6) 
+                && f.FlightNo != flightNo);
         }
 
         public int UpdateFlightStatus(Flight flight)

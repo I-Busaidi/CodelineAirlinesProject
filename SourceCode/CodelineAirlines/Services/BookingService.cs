@@ -348,9 +348,9 @@ namespace CodelineAirlines.Services
         {
             foreach (Booking booking in bookings)
             {
-                string subject = $"Booked Flight Rescheduled to {newDate}";
+                string subject = $"Booked Flight Rescheduled";
                 string body = $"Dear {booking.Passenger.User.UserName},\n" +
-                              $"We regret to inform you that your booked flight {booking.FlightNo} has been rescheduled to {newDate}.\n" +
+                              $"We regret to inform you that your booked flight {booking.FlightNo} has been rescheduled to {newDate.ToString("dd/MM/yyyy ddd ~ hh:mm:ss tt")}.\n" +
                               $"We apologize for any inconvenience caused.";
                 _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
             }
