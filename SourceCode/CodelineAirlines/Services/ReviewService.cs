@@ -96,9 +96,13 @@ namespace CodelineAirlines.Services
                 {
                     throw new KeyNotFoundException("The review does not exist.");
                 }
-
+                // Check if the Reviewer property is loaded
+                if (existingReview.Reviewer == null)
+                {
+                    throw new InvalidOperationException("Reviewer information is missing for the review.");
+                }
                 // Ensure the user is authorized to update their own review
-                if (existingReview.Reviewer.UserId != userId) 
+                if (existingReview.Reviewer.UserId != userId) //Error runtime
                 {
                     throw new UnauthorizedAccessException("You can only update your own reviews.");
                 }

@@ -43,7 +43,10 @@ namespace CodelineAirlines.Repositories
 
         public Review GetReviewById(int id)
         {
-            return _context.Reviews.FirstOrDefault(p => p.ReviewId == id);
+            return _context.Reviews
+                   .Include(r => r.Reviewer) // Include the Reviewer navigation property
+                   .FirstOrDefault(r => r.ReviewId == id);
+      
         }
         public List<Review> GetAllReview()
         {
