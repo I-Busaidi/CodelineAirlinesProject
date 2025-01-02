@@ -1,4 +1,5 @@
 ﻿using CodelineAirlines.DTOs.BookingDTOs;
+using CodelineAirlines.Enums;
 using CodelineAirlines.Models;
 using CodelineAirlines.Repositories;
 
@@ -29,6 +30,17 @@ namespace CodelineAirlines.Services
             if (flight == null)
             {
                 throw new Exception("Flight not found.");
+            }
+            
+            // Validate flight status
+            if (!Enum.IsDefined(typeof(FlightStatus), flight.StatusCode))
+            {
+                throw new ArgumentOutOfRangeException(nameof(flight.StatusCode), "Invalid flight status code.");
+            }
+
+            if (flight.StatusCode != (int)FlightStatus.Scheduled && flight.StatusCode != (int)FlightStatus.ReScheduled)
+            {
+                throw new InvalidOperationException("Booking can only be added for flights that are scheduled or rescheduled.");
             }
 
             var passenger = _passengerRepository.GetPassengerByPassport(bookingDto.PassengerPassport);
