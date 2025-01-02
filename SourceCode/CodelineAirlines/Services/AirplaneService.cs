@@ -19,9 +19,21 @@ namespace CodelineAirlines.Services
         public Airplane AddAirplane(AirplaneCreateDTO airplaneCreateDto)
         {
             var airplane = _mapper.Map<Airplane>(airplaneCreateDto);
-
-            // Add airplane to repository and save changes
-            _airplaneRepository.AddAirplane(airplane);
+            // Check if the input DTO is null
+            if (airplaneCreateDto == null)
+            {
+                throw new ArgumentNullException(nameof(airplaneCreateDto), "Airplane cannot be null.");
+            }
+            try
+            {
+                // Add airplane to repository and save changes
+                _airplaneRepository.AddAirplane(airplane);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it appropriately
+                throw new ApplicationException("An error occurred while adding the airplane.", ex);
+            }
             return airplane;
         }
 

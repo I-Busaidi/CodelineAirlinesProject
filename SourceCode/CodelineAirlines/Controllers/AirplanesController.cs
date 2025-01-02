@@ -19,13 +19,29 @@ namespace CodelineAirlines.Controllers
         [HttpPost]
         public IActionResult AddAirplane([FromBody] AirplaneCreateDTO airplaneCreateDto)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+
+
                 var airplane = _airplaneService.AddAirplane(airplaneCreateDto);
                 return CreatedAtAction(nameof(GetAirplane), new { id = airplane.AirplaneId }, airplane);
             }
+            catch (ArgumentNullException ex)
+            {
+                // Return 400 Bad Request with a specific message
+                return BadRequest(new { message = ex.Message });
+            }
+           
+            catch (Exception ex) {
 
-            return BadRequest(ModelState);
+                // Return 500 Internal Server Error for unexpected exceptions
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+          
         }
 
         // Sample method to get an airplane (for the "CreatedAtAction" response)
