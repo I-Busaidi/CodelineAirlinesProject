@@ -18,9 +18,10 @@ namespace CodelineAirlines.Controllers
         private readonly IReviewService _reviewService;
         private readonly IMapper _mapper;
         private readonly ICompoundService _compoundService;
-        public ReviewController(IReviewService reviewService)
+        public ReviewController(IReviewService reviewService,ICompoundService compoundService)
         {
             _reviewService = reviewService;
+            _compoundService = compoundService;
 
         }
 
