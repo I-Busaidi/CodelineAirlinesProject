@@ -46,10 +46,21 @@ namespace CodelineAirlines.Controllers
                     Comment = reviewInput.Comment
                 };
                 // Call the service method to add the review
-                _compoundService.AddReview(reviewInput);
+                try
+                {
+                    if (_compoundService == null)
+                        throw new InvalidOperationException("CompoundService is not initialized.");
 
-                return Ok(new { Message = "Review created successfully." });
+                    _compoundService.AddReview(reviewInput);
 
+                    return Ok(new { Message = "Review created successfully." });
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, new { Message = ex.Message });
+                }
+
+              
               
             }
             catch (KeyNotFoundException ex)
