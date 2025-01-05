@@ -54,26 +54,50 @@ namespace CodelineAirlines.Controllers
         [HttpGet("Login")]
         public IActionResult Login(string email, string password)
         {
-            string token = _userService.login(email, password);
-
-            if (token == null)
+            try
             {
-            
-                return Unauthorized(new { Message = "Invalid Credentials" });
-            }
+                string token = _userService.login(email, password);
 
-            return Ok(new { token });
+                if (token == null)
+                {
+
+                    return Unauthorized(new { Message = "Invalid Credentials" });
+                }
+
+                return Ok(new { token });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while processing your request.", details = ex.Message });
+            }
         }
         [Authorize]
         [HttpGet("GetUserDetails")]
         public IActionResult GetUserDetails(int id)
         {
-            var user = _userService.GetUserByID(id);
-            if (user == null)
+            try
             {
-                return NotFound("user not found");
+                var user = _userService.GetUserByID(id);
+                if (user == null)
+                {
+                    return NotFound("user not found");
+                }
+                return Ok(user);
             }
-            return Ok(user);
+            catch (KeyNotFoundException ex)
+            {
+                // Handle the exception if the user is not found in the service layer
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected exceptions and return 500 Internal Server Error
+                return StatusCode(500, new { message = "An error occurred while processing your request.", details = ex.Message });
+            }
 
         }
         [HttpPut("UpdateUser/{id}")]
