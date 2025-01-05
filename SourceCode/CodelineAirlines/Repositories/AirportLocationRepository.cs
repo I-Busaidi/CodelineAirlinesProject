@@ -13,7 +13,7 @@ namespace CodelineAirlines.Repositories
 
         public AirportLocation GetAirportLocation(int id)
         {
-            return _context.AirportLocations.Find(id);
+            return _context.AirportLocations.FirstOrDefault(a => a.AirportId == id);
         }
 
         public void AddLocation(AirportLocation airportLocation)

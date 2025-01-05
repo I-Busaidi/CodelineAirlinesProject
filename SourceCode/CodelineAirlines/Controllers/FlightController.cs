@@ -22,11 +22,11 @@ namespace CodelineAirlines.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPost("AddFlight")]
-        public IActionResult AddFlight([FromBody] FlightInputDTO flightInput)
+        public IActionResult AddFlight([FromBody] FlightControllerInput flightInput)
         {
             try
             {
-                int newFlightId = _compoundService.AddFlight(flightInput);
+                int newFlightId = _compoundService.ClaculateFlightInputDuration(flightInput);
                 return Ok(newFlightId);
             }
             catch (InvalidOperationException ex)

@@ -5,6 +5,7 @@ using CodelineAirlines.DTOs.AirportDTOs;
 using CodelineAirlines.DTOs.FlightDTOs;
 using CodelineAirlines.DTOs.ReviewDTOs;
 using CodelineAirlines.Enums;
+using CodelineAirlines.Helpers;
 using CodelineAirlines.Helpers.WeatherForecast;
 using CodelineAirlines.Models;
 using MimeKit.Encodings;
@@ -79,6 +80,32 @@ namespace CodelineAirlines.Services
                     throw new InvalidOperationException("An error occured when adding airport");
                 }
             }
+        }
+
+        public int ClaculateFlightInputDuration(FlightControllerInput flightControllerInput)
+        {
+            var sourceAirport = _airportService.GetAirportByNameWithRelatedData(flightControllerInput.SourceAirportName);
+            var destAirport = _airportService.GetAirportByNameWithRelatedData(flightControllerInput.DestinationAirportName);
+
+            var sourceCoords = _airportLocationService.GetAirportLocation(sourceAirport.AirportId);
+            var destCoords = _airportLocationService.GetAirportLocation(destAirport.AirportId);
+
+            double distance = FlightDistanceClaculator.CalculateDistance(sourceCoords.AirportLatitude, 
+                sourceCoords.AirportLongitude, 
+                destCoords.AirportLatitude, 
+                destCoords.AirportLongitude);
+
+            TimeSpan duration = FlightDistanceClaculator.CalculateFlightDuration(distance, 850.0);
+
+            return AddFlight(new FlightInputDTO
+            {
+                AirplaneId = flightControllerInput.AirplaneId,
+                SourceAirportName = sourceAirport.AirportName,
+                DestinationAirportName = destAirport.AirportName,
+                Cost = flightControllerInput.Cost,
+                Duration = duration,
+                ScheduledDepartureDate = flightControllerInput.ScheduledDepartureDate
+            });
         }
 
         public int AddFlight(FlightInputDTO flightInput)

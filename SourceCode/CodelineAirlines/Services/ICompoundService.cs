@@ -23,5 +23,7 @@ namespace CodelineAirlines.Services
         List<SeatsOutputDTO> GetAvailableSeats(int flightNo);
 
         (string airportName, string country, string city) AddAirport(AirportControllerInputDTO airportInput);
+
+        int ClaculateFlightInputDuration(FlightControllerInput flightControllerInput);
     }
 }
