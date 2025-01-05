@@ -1,4 +1,5 @@
-﻿using CodelineAirlines.DTOs.BookingDTOs;
+﻿using CodelineAirlines.DTOs.AirplaneDTOs;
+using CodelineAirlines.DTOs.BookingDTOs;
 using CodelineAirlines.Models;
 
 namespace CodelineAirlines.Services
@@ -7,10 +8,11 @@ namespace CodelineAirlines.Services
     {
         bool BookFlight(BookingDTO bookingDto);
         bool CancelBooking(int bookingId);
-        IEnumerable<Booking> GetAllBookingsForAdmin();
-        IEnumerable<Booking> GetBookingsForPassenger(string passport);
-        bool UpdateBooking(UpdateBookingDTO bookingDto);
         int CancelFlightBookings(List<int> bookingsIds, string condition);
+        IEnumerable<Booking> GetAllBookingsForAdmin();
+        List<SeatsOutputDTO> GetAvailableSeats(int flightNo, string seatClass);
+        IEnumerable<Booking> GetBookingsForPassenger(string passport);
         void RescheduledFlightBookings(List<int> bookingsIds, DateTime newDate);
+        bool UpdateBooking(UpdateBookingDTO bookingDto);
     }
 }

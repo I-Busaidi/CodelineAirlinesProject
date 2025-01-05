@@ -1,4 +1,5 @@
-﻿using CodelineAirlines.Models;
+﻿using CodelineAirlines.DTOs.AirplaneDTOs;
+using CodelineAirlines.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CodelineAirlines.Repositories

@@ -1,4 +1,6 @@
-﻿using CodelineAirlines.DTOs.BookingDTOs;
+﻿using AutoMapper;
+using CodelineAirlines.DTOs.AirplaneDTOs;
+using CodelineAirlines.DTOs.BookingDTOs;
 using CodelineAirlines.Enums;
 using CodelineAirlines.Models;
 using CodelineAirlines.Repositories;
@@ -12,24 +14,26 @@ namespace CodelineAirlines.Services
         private readonly IBookingRepository _bookingRepository;
         private readonly IEmailService _emailService;
         private readonly ISeatTemplateService _seatTemplateService;
-     
+        private readonly IMapper _mapper;
 
-        public BookingService(IFlightService flightService, IPassengerRepository passengerRepository, IBookingRepository bookingRepository, IEmailService emailService, ISeatTemplateService seatTemplateService)
+
+        public BookingService(IFlightService flightService, IPassengerRepository passengerRepository, IBookingRepository bookingRepository, IEmailService emailService, ISeatTemplateService seatTemplateService, IMapper mapper)
         {
             _seatTemplateService = seatTemplateService;
             _flightService = flightService;
             _passengerRepository = passengerRepository;
             _bookingRepository = bookingRepository;
             _emailService = emailService;
+            _mapper = mapper;
         }
 
         public bool BookFlight(BookingDTO bookingDto)
         {
-            // Define class costs and seat selection cost
-            const decimal EconomyClassCost = 100m; // Base cost for Economy
-            const decimal BusinessClassCost = 200m; // Base cost for Business
-            const decimal FirstClassCost = 300m; // Base cost for First Class
-            const decimal SeatSelectionCost = 50m; // Additional cost for seat selection
+            // Define class cost percentages
+            const decimal EconomyClassPercentage = 0.00m; // 0% for Economy
+            const decimal BusinessClassPercentage = 0.05m; // 5% for Business
+            const decimal FirstClassPercentage = 0.10m; // 10% for First Class
+            const decimal SeatSelectionPercentage = 0.03m; // 3% for seat selection
 
             // Retrieve the flight and passenger synchronously
             var flight = _flightService.GetFlightByIdWithRelatedData(bookingDto.FlightNo);
@@ -61,6 +65,15 @@ namespace CodelineAirlines.Services
                 throw new InvalidOperationException("Insufficient loyalty points.");
             }
 
+            // Get available seats for the selected class
+            var availableSeats = GetAvailableSeats(bookingDto.FlightNo, bookingDto.Class);
+
+            // Check if the selected seat is available
+            if (!string.IsNullOrEmpty(bookingDto.SeatNo) && !availableSeats.Any(s => s.SeatNumber == bookingDto.SeatNo))
+            {
+                throw new InvalidOperationException("The selected seat is not available.");
+            }
+
             var seats = _seatTemplateService.GetSeatTemplatesByModel(flight.Airplane.AirplaneModel);
 
             // Check if the flight is fully booked
@@ -70,34 +83,42 @@ namespace CodelineAirlines.Services
                 throw new InvalidOperationException("This flight is fully booked");
             }
 
-            // Determine the base cost based on the class selected
-            decimal baseCost;
-            switch (bookingDto.Class)
+            // Determine the base cost of the flight
+            decimal baseCost = flight.Cost; // Use the flight's base cost
+
+            // Calculate the class cost based on the selected class
+            decimal classCost = 0;
+            switch (bookingDto.Class.ToLower())
             {
-                case "Economy":
-                    baseCost = EconomyClassCost;
+                case "economy":
+                    classCost = baseCost * EconomyClassPercentage;
                     break;
-                case "Business":
-                    baseCost = BusinessClassCost;
+                case "business":
+                    classCost = baseCost * BusinessClassPercentage;
                     break;
-                case "First":
-                    baseCost = FirstClassCost;
+                case "first":
+                    classCost = baseCost * FirstClassPercentage;
                     break;
                 default:
                     throw new ArgumentException("Invalid class selected.");
             }
 
             // Calculate the total cost
-            decimal totalCost = baseCost;
-            
+            decimal totalCost = baseCost + classCost;
+
             // If a seat is selected, add the seat selection cost
             if (!string.IsNullOrEmpty(bookingDto.SeatNo) && seats.Any(s => s.SeatNumber == bookingDto.SeatNo))
             {
-                totalCost += SeatSelectionCost;
+                totalCost += baseCost * SeatSelectionPercentage; // Add 3% of the base cost
             }
             else
             {
                 bookingDto.SeatNo = null;
+            }
+
+            if (string.IsNullOrEmpty(bookingDto.Meal) || bookingDto.Meal.ToLower() == "string")
+            {
+                bookingDto.Meal = null;
             }
 
             // Calculate the discount based on loyalty points used
@@ -183,6 +204,7 @@ namespace CodelineAirlines.Services
             }
 
             // Update the booking details
+            booking.Class = bookingDto.Class ?? booking.Class;
             booking.SeatNo = bookingDto.SeatNo ?? booking.SeatNo;
             booking.Meal = bookingDto.Meal ?? booking.Meal;
 
@@ -293,9 +315,16 @@ namespace CodelineAirlines.Services
             string subject = "Booking Confirmation";
             string body = $"Dear {booking.Passenger.User.UserName}\n\n" +
                           $"Your booking for Flight {booking.FlightNo} has been confirmed.\n" +
-                          $"Seat: {booking.SeatNo}\n" +
-                          $"Meal: {booking.Meal}\n\n" +
-                          $"Total Cost: ${booking.TotalCost}\n\n";
+                          $"Class: {booking.Class}\n";
+            if (booking.SeatNo != null)
+            {
+                body += $"Seat: {booking.SeatNo}\n";
+            }
+
+            if (booking.Meal != null)
+            {
+                body += $"Meal: {booking.Meal}\n\n";
+            }
 
             // Include loyalty points and discount information
             if (loyaltyPointsUsed > 0)
@@ -304,7 +333,8 @@ namespace CodelineAirlines.Services
                         $"Discount Applied: ${discountAmount}\n\n";
             }
 
-            body += $"We look forward to welcoming you aboard!\n" +
+            body += $"Total Cost: ${booking.TotalCost}\n\n" +
+                    $"We look forward to welcoming you aboard!\n" +
                     $"Thank you for choosing us!\n\n" +
                     $"Best regards,\nCodeline's Airline Team";
 
@@ -320,6 +350,7 @@ namespace CodelineAirlines.Services
             string subject = "Booking Update";
             string body = $"Dear {booking.Passenger.User.UserName},\n\n" +
                           $"Your booking for Flight {booking.FlightNo} has been updated.\n" +
+                          $"New Class: {booking.Class}\n" +
                           $"New Seat: {booking.SeatNo}\n" +
                           $"New Meal: {booking.Meal}\n" +
                           $"New Total Cost: ${booking.TotalCost}\n\n" +
@@ -334,10 +365,12 @@ namespace CodelineAirlines.Services
         {
             string subject = "Booking Cancellation Confirmation";
             string body = $"Dear {booking.Passenger.User.UserName},\n\n" +
-                          $"We regret to inform you that your booking for Flight {booking.FlightNo} has been cancelled.\n" +
-                          $"Seat: {booking.SeatNo}\n" +
-                          $"Meal: {booking.Meal}\n\n" +
-                          $"Refund Percentage: {refundPercentage * 100}%\n" +
+                          $"We regret to inform you that your booking for Flight {booking.FlightNo} has been cancelled.\n";
+            if (booking.SeatNo != null)
+            {
+                body += $"Seat: {booking.SeatNo}\n";
+            }
+            body += $"Refund Percentage: {refundPercentage * 100}%\n" +
                           $"Refund Amount: ${refundAmount}\n\n";
 
             // Include refunded loyalty points
@@ -406,6 +439,26 @@ namespace CodelineAirlines.Services
                               $"We apologize for any inconvenience caused.";
                 _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
             }
+        }
+
+        public List<SeatsOutputDTO> GetAvailableSeats(int flightNo, string seatClass)
+        {
+            var flight = _flightService.GetFlightByIdWithRelatedData(flightNo);
+            var seats = _seatTemplateService.GetSeatTemplatesByModel(flight.Airplane.AirplaneModel);
+
+            if (seats == null || seats.Count() == 0)
+            {
+                throw new KeyNotFoundException("Could not find seat.");
+            }
+
+            // Filter seats based on the selected class
+            var availableSeats = seats
+                .Where(s => s.Type.Equals(seatClass, StringComparison.OrdinalIgnoreCase) &&
+                            !flight.Bookings.Any(b => b.SeatNo == s.SeatNumber))
+                .ToList();
+
+            List<SeatsOutputDTO> availableSeatsList = _mapper.Map<List<SeatsOutputDTO>>(availableSeats);
+            return availableSeatsList;
         }
     }
 }
