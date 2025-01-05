@@ -25,13 +25,19 @@ namespace CodelineAirlines.Services
 
         public bool BookFlight(BookingDTO bookingDto)
         {
+            // Define class costs and seat selection cost
+            const decimal EconomyClassCost = 100m; // Base cost for Economy
+            const decimal BusinessClassCost = 200m; // Base cost for Business
+            const decimal FirstClassCost = 300m; // Base cost for First Class
+            const decimal SeatSelectionCost = 50m; // Additional cost for seat selection
+
             // Retrieve the flight and passenger synchronously
             var flight = _flightService.GetFlightByIdWithRelatedData(bookingDto.FlightNo);
             if (flight == null)
             {
                 throw new Exception("Flight not found.");
             }
-            
+
             // Validate flight status
             if (!Enum.IsDefined(typeof(FlightStatus), flight.StatusCode))
             {
@@ -55,31 +61,64 @@ namespace CodelineAirlines.Services
                 throw new InvalidOperationException("Insufficient loyalty points.");
             }
 
+            var seats = _seatTemplateService.GetSeatTemplatesByModel(flight.Airplane.AirplaneModel);
+
             // Check if the flight is fully booked
-            int seatCapacity = _seatTemplateService.GetSeatTemplatesByModel(flight.Airplane.AirplaneModel).Count();
+            int seatCapacity = seats.Count();
             if (flight.Bookings.Count >= seatCapacity)
             {
                 throw new InvalidOperationException("This flight is fully booked");
             }
 
-            // Calculate the discount based on loyalty points used
-            decimal loyaltyPointsValue = bookingDto.LoyaltyPointsToUse * 10m;  // Assuming 1 point = $10 discount (you can adjust the value here)
-            if (loyaltyPointsValue > flight.Cost)
+            // Determine the base cost based on the class selected
+            decimal baseCost;
+            switch (bookingDto.Class)
             {
-                loyaltyPointsValue = flight.Cost;  // Ensure the discount does not exceed the flight cost
+                case "Economy":
+                    baseCost = EconomyClassCost;
+                    break;
+                case "Business":
+                    baseCost = BusinessClassCost;
+                    break;
+                case "First":
+                    baseCost = FirstClassCost;
+                    break;
+                default:
+                    throw new ArgumentException("Invalid class selected.");
+            }
+
+            // Calculate the total cost
+            decimal totalCost = baseCost;
+            
+            // If a seat is selected, add the seat selection cost
+            if (!string.IsNullOrEmpty(bookingDto.SeatNo) && seats.Any(s => s.SeatNumber == bookingDto.SeatNo))
+            {
+                totalCost += SeatSelectionCost;
+            }
+            else
+            {
+                bookingDto.SeatNo = null;
+            }
+
+            // Calculate the discount based on loyalty points used
+            decimal loyaltyPointsValue = bookingDto.LoyaltyPointsToUse * 10m;  // Assuming 1 point = $10 discount
+            if (loyaltyPointsValue > totalCost)
+            {
+                loyaltyPointsValue = totalCost;  // Ensure the discount does not exceed the total cost
             }
 
             // Apply the discount to the total cost
-            decimal discountedCost = flight.Cost - loyaltyPointsValue;
+            totalCost -= loyaltyPointsValue;
 
             // Create new booking with the discounted total cost
             var booking = new Booking
             {
                 FlightNo = bookingDto.FlightNo,
                 PassengerPassport = bookingDto.PassengerPassport,
+                Class = bookingDto.Class,
                 SeatNo = bookingDto.SeatNo,
                 Meal = bookingDto.Meal,
-                TotalCost = discountedCost,  // Apply the discount here
+                TotalCost = totalCost,  // Apply the total cost here
                 Status = 0,  // Assume booking is pending
                 BookingDate = DateTime.Now,
                 LoyaltyPointsUsed = bookingDto.LoyaltyPointsToUse,
