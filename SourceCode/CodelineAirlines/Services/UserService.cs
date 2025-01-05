@@ -110,11 +110,15 @@ namespace CodelineAirlines.Services
 
         public UserOutputDTO GetUserByID(int id)
         {
-            try
-            {
+          
                 var user = _userrepo.GetById(id);
-                var outPutUser = new UserOutputDTO
+                // Check if user is null (not found)
+                if (user == null)
                 {
+                    throw new KeyNotFoundException($"User with ID {id} was not found.");
+                }
+            return new UserOutputDTO
+            {
                
                     Name = user.UserName,
                     Email=user.UserEmail,
@@ -123,13 +127,10 @@ namespace CodelineAirlines.Services
 
                 };
 
-                return outPutUser;
+    
 
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.InnerException.Message);
-            }
+            
+       
 
         }
 
