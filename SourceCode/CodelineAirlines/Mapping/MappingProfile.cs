@@ -42,6 +42,21 @@ namespace CodelineAirlines.Mapping
                 .ForMember(dest => dest.DestinationAirportName, opt => opt.MapFrom(src => src.DestinationAirport.AirportName))
                 .ForMember(dest => dest.AirplaneModel, opt => opt.MapFrom(src => src.Airplane.AirplaneModel))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => Enum.GetName(typeof(FlightStatus), src.StatusCode)));
+
+            CreateMap<SeatTemplate, SeatsOutputDTO>()
+                .ForMember(dest => dest.SeatLocation, opt => opt.MapFrom(src => GetSeatLocation(src.IsWindowSeat)));
+        }
+
+        private string GetSeatLocation(bool isWindowSeat)
+        {
+            if (isWindowSeat)
+            {
+                return "Window seat";
+            }
+            else
+            {
+                return "Aisle seat";
+            }
         }
     }
     

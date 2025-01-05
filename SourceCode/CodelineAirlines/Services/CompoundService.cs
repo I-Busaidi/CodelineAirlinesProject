@@ -1,11 +1,13 @@
 ﻿using ActiveUp.Net.Mail;
 using AutoMapper;
+using CodelineAirlines.DTOs.AirplaneDTOs;
 using CodelineAirlines.DTOs.AirportDTOs;
 using CodelineAirlines.DTOs.FlightDTOs;
 using CodelineAirlines.DTOs.ReviewDTOs;
 using CodelineAirlines.Enums;
 using CodelineAirlines.Models;
 using MimeKit.Encodings;
+using System.Collections.Immutable;
 
 namespace CodelineAirlines.Services
 {
@@ -405,6 +407,20 @@ namespace CodelineAirlines.Services
 
 
             _reviewService.AddReview(newReview);
+        }
+
+        public List<SeatsOutputDTO> GetAvailableSeats(int flightNo)
+        {
+            var flight = _flightService.GetFlightByIdWithRelatedData(flightNo);
+            var seats = _seatTemplateService.GetSeatTemplatesByModel(flight.Airplane.AirplaneModel);
+            if (seats == null || seats.Count() == 0)
+            {
+                throw new KeyNotFoundException("Could not find seat template.");
+            }
+
+            var availableSeats = seats.Where(s => !flight.Bookings.Any(b => b.SeatNo == s.SeatNumber)).ToList();
+            List<SeatsOutputDTO> availableSeatsList = _mapper.Map<List<SeatsOutputDTO>>(availableSeats);
+            return availableSeatsList;
         }
     }
 }
