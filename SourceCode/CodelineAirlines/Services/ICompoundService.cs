@@ -1,4 +1,5 @@
-﻿using CodelineAirlines.DTOs.FlightDTOs;
+﻿using CodelineAirlines.DTOs.AirplaneDTOs;
+using CodelineAirlines.DTOs.FlightDTOs;
 using CodelineAirlines.DTOs.ReviewDTOs;
 using CodelineAirlines.Enums;
 
@@ -15,6 +16,9 @@ namespace CodelineAirlines.Services
         void AddReview(ReviewInputDTO review);
 
         public (int FlightNo, DateTime NewDepartureDate) RescheduleFlight(int flightNo, DateTime newDate, int airplaneId = -1);
+
         (int FlightNo, string? Status) Land(int flightNo);
+
+        List<SeatsOutputDTO> GetAvailableSeats(int flightNo);
     }
 }

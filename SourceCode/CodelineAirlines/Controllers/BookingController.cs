@@ -10,10 +10,12 @@ namespace CodelineAirlines.Controllers
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
+        private readonly ICompoundService _compoundService;
 
-        public BookingController(IBookingService bookingService)
+        public BookingController(IBookingService bookingService, ICompoundService compoundService)
         {
             _bookingService = bookingService;
+            _compoundService = compoundService;
         }
 
         [HttpPost]
@@ -35,6 +37,26 @@ namespace CodelineAirlines.Controllers
                 }
 
                 return BadRequest("Failed to book the flight.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("GetFlightAvailableSeats/{flightNo}")]
+        public IActionResult GetFlightAvailableSeats(int flightNo, string seatClass = "", string seatLocation = "")
+        {
+            try
+            {
+                var seats = _compoundService.GetAvailableSeats(flightNo).Where(s => s.SeatLocation.Contains(seatLocation)
+                && s.Type.Contains(seatClass));
+
+                return Ok(seats);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {

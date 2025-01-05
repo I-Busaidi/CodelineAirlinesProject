@@ -39,5 +39,6 @@ namespace CodelineAirlines
         public DbSet<Flight> Flights { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<AirportLocation> AirportLocations { get; set; }
     }
 }
