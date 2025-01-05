@@ -1,4 +1,5 @@
 ﻿using CodelineAirlines.DTOs.AirplaneDTOs;
+using CodelineAirlines.DTOs.AirportDTOs;
 using CodelineAirlines.DTOs.FlightDTOs;
 using CodelineAirlines.DTOs.ReviewDTOs;
 using CodelineAirlines.Enums;
@@ -20,5 +21,7 @@ namespace CodelineAirlines.Services
         (int FlightNo, string? Status) Land(int flightNo);
 
         List<SeatsOutputDTO> GetAvailableSeats(int flightNo);
+
+        (string airportName, string country, string city) AddAirport(AirportControllerInputDTO airportInput);
     }
 }

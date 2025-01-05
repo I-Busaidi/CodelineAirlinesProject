@@ -24,6 +24,8 @@ namespace CodelineAirlines
             // Adding Airport related services.
             builder.Services.AddScoped<IAirportRepository, AirportRepository>();
             builder.Services.AddScoped<IAirportService, AirportService>();
+            builder.Services.AddScoped<IAirportLocationRepository, AirportLocationRepository>();
+            builder.Services.AddScoped<IAirportLocationService, AirportLocationService>();
 
             // Adding User related services.
             builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -40,9 +42,15 @@ namespace CodelineAirlines
             // Adding Seats Template related services.
             builder.Services.AddScoped<ISeatTemplateRepository, SeatTemplateRepository>();
             builder.Services.AddScoped<ISeatTemplateService, SeatTemplateService>();
+
+            // adding email service
             builder.Services.AddScoped<IEmailService, EmailService>();
+
+            //adding review related services
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
+
+            //adding booking related services
             builder.Services.AddScoped<IBookingRepository, BookingRepository>();
             builder.Services.AddScoped<IBookingService, BookingService>();
 
@@ -53,10 +61,14 @@ namespace CodelineAirlines
             // Adding Compound services.
             builder.Services.AddScoped<ICompoundService, CompoundService>();
 
+            //Adding automapper
             builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+
             //Value Resolvers for AutoMapper
             builder.Services.AddScoped<SourceAirportNameResolver>();
             builder.Services.AddScoped<DestinationAirportNameResolver>();
+
+
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient<WeatherService>(); // Used for weather forecast.

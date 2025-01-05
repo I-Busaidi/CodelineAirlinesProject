@@ -5,6 +5,7 @@ using CodelineAirlines.DTOs.AirportDTOs;
 using CodelineAirlines.DTOs.FlightDTOs;
 using CodelineAirlines.DTOs.ReviewDTOs;
 using CodelineAirlines.Enums;
+using CodelineAirlines.Helpers.WeatherForecast;
 using CodelineAirlines.Models;
 using MimeKit.Encodings;
 using System.Collections.Immutable;
@@ -22,9 +23,11 @@ namespace CodelineAirlines.Services
         private readonly IMapper _mapper;
         private readonly IReviewService _reviewService;
         private readonly IPassengerService _passengerService;
+        private readonly IAirportLocationService _airportLocationService;
+        private readonly WeatherService _weatherService;
 
 
-        public CompoundService(IFlightService flightService, IAirportService airportService, IAirplaneService airplaneService, IMapper mapper, IBookingService bookingService, ApplicationDbContext context, ISeatTemplateService seatTemplateService, IReviewService reviewService,IPassengerService passengerService)
+        public CompoundService(IFlightService flightService, IAirportService airportService, IAirplaneService airplaneService, IMapper mapper, IBookingService bookingService, ApplicationDbContext context, ISeatTemplateService seatTemplateService, IReviewService reviewService,IPassengerService passengerService, IAirportLocationService airportLocationService, WeatherService weatherService)
         {
             _context = context;
             _bookingService = bookingService;
@@ -35,7 +38,48 @@ namespace CodelineAirlines.Services
             _reviewService = reviewService;
             _mapper = mapper;
             _passengerService = passengerService;
-          }
+            _airportLocationService = airportLocationService;
+            _weatherService = weatherService;
+        }
+
+        public (string airportName, string country, string city) AddAirport(AirportControllerInputDTO airportInput)
+        {
+            var cityDetails = _weatherService.GetWeatherAsync(airportInput.City);
+            if (cityDetails == null)
+            {
+                throw new InvalidOperationException("City name is invalid");
+            }
+            using (var transcation = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var airport = _airportService.AddAirport(new AirportInputDTO
+                    {
+                        AirportName = airportInput.AirportName,
+                        Country = cityDetails.Result.sys.country,
+                        City = airportInput.City
+                    });
+
+                    _airportLocationService.AddAirportLocation(new AirportLocation
+                    {
+                        Airport = airport,
+                        AirportId = airport.AirportId,
+                        AirportLatitude = cityDetails.Result.coord.lat,
+                        AirportLongitude = cityDetails.Result.coord.lon
+                    });
+
+                    _context.SaveChanges();
+                    transcation.Commit();
+
+                    return (airport.AirportName, airport.Country, airport.City);
+                }
+                catch (Exception ex)
+                {
+                    transcation.Rollback();
+                    throw new InvalidOperationException("An error occured when adding airport");
+                }
+            }
+        }
 
         public int AddFlight(FlightInputDTO flightInput)
         {

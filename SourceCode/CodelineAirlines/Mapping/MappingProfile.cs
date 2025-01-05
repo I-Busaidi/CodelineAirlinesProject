@@ -13,38 +13,44 @@ namespace CodelineAirlines.Mapping
     {
         public MappingProfile() 
         {
+            // Airport related maps
             CreateMap<AirportInputDTO, Airport>();
+            CreateMap<Airport, AirportOutputDTO>();
+            CreateMap<AirportLocation, AirportLocationOutputDTO>();
+
+            // Airplane related maps
             CreateMap<AirplaneCreateDTO, Airplane>();
             CreateMap<Airplane, AirplaneOutputDto>()
                 .ForMember(dest => dest.AirportName, opt => opt.MapFrom(src => src.Airport.AirportName)); // Mapping the Airport Name
+            CreateMap<SeatTemplate, SeatsOutputDTO>()
+                .ForMember(dest => dest.SeatLocation, opt => opt.MapFrom(src => GetSeatLocation(src.IsWindowSeat)));
+            CreateMap<GenerateSeatTemplateDto, SeatTemplate>();
+
+            // User related maps
             CreateMap<UserInputDTOs, User>()
               .ForMember(dest => dest.Password, opt => opt.Ignore()); // Ignore password by default
-            CreateMap<Airport, AirportOutputDTO>();
-            CreateMap<GenerateSeatTemplateDto, SeatTemplate>();
-     
-            CreateMap<Passenger, PassengerOutputDTO>();
 
+            // Passenger related maps
+            CreateMap<Passenger, PassengerOutputDTO>();
             // Map from PassengerInputDTOs to Passenger
             CreateMap<PassengerInputDTOs, Passenger>()
                 .ForMember(dest => dest.BirthDate, opt => opt.MapFrom(src => new DateOnly(src.BirthDate.Year, src.BirthDate.Month, src.BirthDate.Day)))
                 .ForMember(dest => dest.Passport, opt => opt.MapFrom(src => src.Passport))
                 .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender))
                 .ForMember(dest => dest.Nationality, opt => opt.MapFrom(src => src.Nationality));
+
             //Map from ReviewInputDTO to Review 
             CreateMap<ReviewInputDTO, Review>();
 
+            // Flight related maps
             CreateMap<FlightInputDTO, Flight>()
                 .ForMember(dest => dest.SourceAirportId , opt => opt.MapFrom<SourceAirportNameResolver>())
                 .ForMember(dest => dest.DestinationAirportId, opt => opt.MapFrom<DestinationAirportNameResolver>());
-
             CreateMap<Flight, FlightOutputDTO>()
                 .ForMember(dest => dest.SourceAirportName, opt => opt.MapFrom(src => src.SourceAirport.AirportName))
                 .ForMember(dest => dest.DestinationAirportName, opt => opt.MapFrom(src => src.DestinationAirport.AirportName))
                 .ForMember(dest => dest.AirplaneModel, opt => opt.MapFrom(src => src.Airplane.AirplaneModel))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => Enum.GetName(typeof(FlightStatus), src.StatusCode)));
-
-            CreateMap<SeatTemplate, SeatsOutputDTO>()
-                .ForMember(dest => dest.SeatLocation, opt => opt.MapFrom(src => GetSeatLocation(src.IsWindowSeat)));
         }
 
         private string GetSeatLocation(bool isWindowSeat)

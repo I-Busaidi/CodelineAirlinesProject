@@ -1,4 +1,6 @@
-﻿using CodelineAirlines.DTOs.BookingDTOs;
+﻿using AutoMapper;
+using CodelineAirlines.DTOs.AirplaneDTOs;
+using CodelineAirlines.DTOs.BookingDTOs;
 using CodelineAirlines.Enums;
 using CodelineAirlines.Models;
 using CodelineAirlines.Repositories;
@@ -12,15 +14,17 @@ namespace CodelineAirlines.Services
         private readonly IBookingRepository _bookingRepository;
         private readonly IEmailService _emailService;
         private readonly ISeatTemplateService _seatTemplateService;
-     
+        private readonly IMapper _mapper;
 
-        public BookingService(IFlightService flightService, IPassengerRepository passengerRepository, IBookingRepository bookingRepository, IEmailService emailService, ISeatTemplateService seatTemplateService)
+
+        public BookingService(IFlightService flightService, IPassengerRepository passengerRepository, IBookingRepository bookingRepository, IEmailService emailService, ISeatTemplateService seatTemplateService, IMapper mapper)
         {
             _seatTemplateService = seatTemplateService;
             _flightService = flightService;
             _passengerRepository = passengerRepository;
             _bookingRepository = bookingRepository;
             _emailService = emailService;
+            _mapper = mapper;
         }
 
         public bool BookFlight(BookingDTO bookingDto)
@@ -61,6 +65,15 @@ namespace CodelineAirlines.Services
                 throw new InvalidOperationException("Insufficient loyalty points.");
             }
 
+            // Get available seats for the selected class
+            var availableSeats = GetAvailableSeats(bookingDto.FlightNo, bookingDto.Class);
+
+            // Check if the selected seat is available
+            if (!string.IsNullOrEmpty(bookingDto.SeatNo) && !availableSeats.Any(s => s.SeatNumber == bookingDto.SeatNo))
+            {
+                throw new InvalidOperationException("The selected seat is not available.");
+            }
+
             var seats = _seatTemplateService.GetSeatTemplatesByModel(flight.Airplane.AirplaneModel);
 
             // Check if the flight is fully booked
@@ -92,7 +105,7 @@ namespace CodelineAirlines.Services
 
             // Calculate the total cost
             decimal totalCost = baseCost + classCost;
-            
+
             // If a seat is selected, add the seat selection cost
             if (!string.IsNullOrEmpty(bookingDto.SeatNo) && seats.Any(s => s.SeatNumber == bookingDto.SeatNo))
             {
@@ -303,7 +316,7 @@ namespace CodelineAirlines.Services
             string body = $"Dear {booking.Passenger.User.UserName}\n\n" +
                           $"Your booking for Flight {booking.FlightNo} has been confirmed.\n" +
                           $"Class: {booking.Class}\n";
-                          if (booking.SeatNo != null)
+            if (booking.SeatNo != null)
             {
                 body += $"Seat: {booking.SeatNo}\n";
             }
@@ -320,7 +333,7 @@ namespace CodelineAirlines.Services
                         $"Discount Applied: ${discountAmount}\n\n";
             }
 
-            body += $"Total Cost: ${booking.TotalCost}\n\n"+
+            body += $"Total Cost: ${booking.TotalCost}\n\n" +
                     $"We look forward to welcoming you aboard!\n" +
                     $"Thank you for choosing us!\n\n" +
                     $"Best regards,\nCodeline's Airline Team";
@@ -353,7 +366,7 @@ namespace CodelineAirlines.Services
             string subject = "Booking Cancellation Confirmation";
             string body = $"Dear {booking.Passenger.User.UserName},\n\n" +
                           $"We regret to inform you that your booking for Flight {booking.FlightNo} has been cancelled.\n";
-                          if (booking.SeatNo != null)
+            if (booking.SeatNo != null)
             {
                 body += $"Seat: {booking.SeatNo}\n";
             }
@@ -426,6 +439,26 @@ namespace CodelineAirlines.Services
                               $"We apologize for any inconvenience caused.";
                 _emailService.SendEmailAsync(booking.Passenger.User.UserEmail, subject, body);
             }
+        }
+
+        public List<SeatsOutputDTO> GetAvailableSeats(int flightNo, string seatClass)
+        {
+            var flight = _flightService.GetFlightByIdWithRelatedData(flightNo);
+            var seats = _seatTemplateService.GetSeatTemplatesByModel(flight.Airplane.AirplaneModel);
+
+            if (seats == null || seats.Count() == 0)
+            {
+                throw new KeyNotFoundException("Could not find seat.");
+            }
+
+            // Filter seats based on the selected class
+            var availableSeats = seats
+                .Where(s => s.Type.Equals(seatClass, StringComparison.OrdinalIgnoreCase) &&
+                            !flight.Bookings.Any(b => b.SeatNo == s.SeatNumber))
+                .ToList();
+
+            List<SeatsOutputDTO> availableSeatsList = _mapper.Map<List<SeatsOutputDTO>>(availableSeats);
+            return availableSeatsList;
         }
     }
 }

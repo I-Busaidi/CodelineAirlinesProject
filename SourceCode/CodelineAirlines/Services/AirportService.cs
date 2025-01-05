@@ -17,7 +17,7 @@ namespace CodelineAirlines.Services
             _mapper = mapper;
         }
 
-        public string AddAirport(AirportInputDTO airportInputDTO)
+        public Airport AddAirport(AirportInputDTO airportInputDTO)
         {
             if (airportInputDTO == null)
             {

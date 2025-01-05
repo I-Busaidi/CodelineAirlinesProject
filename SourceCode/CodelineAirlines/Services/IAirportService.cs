@@ -5,7 +5,7 @@ namespace CodelineAirlines.Services
 {
     public interface IAirportService
     {
-        string AddAirport(AirportInputDTO airportInputDTO);
+        Airport AddAirport(AirportInputDTO airportInputDTO);
         List<AirportOutputDTO> GetAllAirports();
         AirportOutputDTO GetAirportByName(string name);
         int UpdateAirport(AirportInputDTO airportInput, int id);
