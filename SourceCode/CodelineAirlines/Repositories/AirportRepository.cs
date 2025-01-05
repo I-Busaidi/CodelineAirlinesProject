@@ -12,11 +12,10 @@ namespace CodelineAirlines.Repositories
             _context = context;
         }
 
-        public string AddAirport(Airport airport)
+        public Airport AddAirport(Airport airport)
         {
             _context.Airports.Add(airport);
-            _context.SaveChanges();
-            return airport.AirportName;
+            return airport;
         }
 
         public IEnumerable<Airport> GetAllAirports()
@@ -41,7 +40,6 @@ namespace CodelineAirlines.Repositories
         public int UpdateAirport(Airport airport)
         {
             _context.Airports.Update(airport);
-            _context.SaveChanges();
 
             return airport.AirportId;
         }
@@ -49,7 +47,6 @@ namespace CodelineAirlines.Repositories
         public void DeleteAirport(Airport airport)
         {
             _context.Airports.Remove(airport);
-            _context.SaveChanges();
         }
     }
 }

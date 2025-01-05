@@ -11,20 +11,22 @@ namespace CodelineAirlines.Controllers
     public class AirportController : ControllerBase
     {
         private readonly IAirportService _airportService;
+        private readonly ICompoundService _compoundService;
 
-        public AirportController(IAirportService airportService)
+        public AirportController(IAirportService airportService, ICompoundService compoundService)
         {
             _airportService = airportService;
+            _compoundService = compoundService;
         }
 
         [Authorize(Roles = "admin")]
         [HttpPost("AddAirport")]
-        public IActionResult AddAirport([FromBody] AirportInputDTO airportInputDTO)
+        public IActionResult AddAirport([FromBody] AirportControllerInputDTO airportInputDTO)
         {
             try
             {
-                string addedAirport = _airportService.AddAirport(airportInputDTO);
-                return Created(string.Empty, addedAirport);
+                var airport = _compoundService.AddAirport(airportInputDTO);
+                return Created(string.Empty, $"{airport.airportName} has been added. City: {airport.city}, Country: {airport.country}");
             }
             catch (ArgumentException ex)
             {
