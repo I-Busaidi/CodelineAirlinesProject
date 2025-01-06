@@ -121,16 +121,31 @@ namespace CodelineAirlines.Services
                 throw new KeyNotFoundException("Airplane not found");
             }
 
+            if (!airplane.IsActive)
+            {
+                throw new InvalidOperationException("This airplane has been deactivated.");
+            }
+
             var sourceAirport = _airportService.GetAirportByNameWithRelatedData(flightInput.SourceAirportName);
             if (sourceAirport == null)
             {
                 throw new KeyNotFoundException("Source airport not found");
             }
 
+            if (sourceAirport.IsActive)
+            {
+                throw new InvalidOperationException("Source airport is not currently unavailable.");
+            }
+
             var destinationAirport = _airportService.GetAirportByNameWithRelatedData(flightInput.DestinationAirportName);
             if (destinationAirport == null)
             {
                 throw new KeyNotFoundException("Destination airport not found");
+            }
+
+            if (destinationAirport.IsActive)
+            {
+                throw new InvalidOperationException("Destination airport is not currently unavailable.");
             }
 
             var flight = _mapper.Map<Flight>(flightInput);
@@ -180,6 +195,11 @@ namespace CodelineAirlines.Services
             if (airplane == null)
             {
                 throw new KeyNotFoundException("Airplane not found");
+            }
+
+            if (!airplane.IsActive)
+            {
+                throw new InvalidOperationException("This airplane has been deactivated.");
             }
 
             if (!CheckAirplaneAvailability(flight, flightNo))
