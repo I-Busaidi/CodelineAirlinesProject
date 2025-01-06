@@ -315,6 +315,7 @@ namespace CodelineAirlines.Services
             string subject = "Booking Confirmation";
             string body = $"Dear {booking.Passenger.User.UserName}\n\n" +
                           $"Your booking for Flight {booking.FlightNo} has been confirmed.\n" +
+                          $"On {booking.Flight.ScheduledDepartureDate.ToString("dddd ~ dd/MM/yyyy ~ hh:mm:ss tt")}\n" +
                           $"Class: {booking.Class}\n";
             if (booking.SeatNo != null)
             {
@@ -350,6 +351,7 @@ namespace CodelineAirlines.Services
             string subject = "Booking Update";
             string body = $"Dear {booking.Passenger.User.UserName},\n\n" +
                           $"Your booking for Flight {booking.FlightNo} has been updated.\n" +
+                          $"Date: {booking.Flight.ScheduledDepartureDate.ToString("dddd ~ dd/MM/yyyy ~ hh:mm:ss tt")}\n" + 
                           $"New Class: {booking.Class}\n" +
                           $"New Seat: {booking.SeatNo}\n" +
                           $"New Meal: {booking.Meal}\n" +

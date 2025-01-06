@@ -21,9 +21,22 @@ namespace CodelineAirlines.Services
         {
             var seatTemplates = new List<SeatTemplate>();
 
-            
+            if (dto.FirstClassSeats % 4 != 0)
+            {
+                throw new InvalidOperationException("First class seats must be multiples of 4 (4, 8, 12, 16, ...)");
+            }
 
-            
+            if (dto.BusinessSeats % 6 != 0)
+            {
+                throw new InvalidOperationException("Business class seats must be multiples of 6 (6, 12, 18, 24, ...)");
+            }
+
+            if (dto.EconomySeats % 10 != 0)
+            {
+                throw new InvalidOperationException("Economy class seats must be multiples of 10 (10, 20, 30, 40, ...)");
+            }
+
+
 
             // Generate Seat Templates for First Class
             seatTemplates.AddRange(GenerateSeatsForClass(dto.AirplaneModel, "First Class", dto.FirstClassSeats, 500));  // 500 for first class seat cost
