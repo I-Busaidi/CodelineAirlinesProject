@@ -92,6 +92,41 @@ namespace CodelineAirlines.Controllers
             return NoContent();  // Return 204 No Content if the update was successful
         }
 
+        // Endpoint to deactivate an airplane
+        [Authorize(Roles = "admin")]
+        [HttpPut("deactivate/{id}")]
+        public IActionResult DeactivateAirplane(int id)
+        {
+            // Call the service layer to deactivate the airplane
+            var result = _airplaneService.DeactivateAirplane(id);
+
+            if (result)
+            {
+                return Ok(new { message = "Airplane deactivated successfully." });
+            }
+            else
+            {
+                return NotFound(new { message = "Airplane not found." });
+            }
+        }
+
+        // Endpoint to reactivate an airplane
+        [Authorize(Roles = "admin")]
+        [HttpPut("reactivate/{id}")]
+        public IActionResult ReactivateAirplane(int id)
+        {
+            var result = _airplaneService.ReactivateAirplane(id);
+
+            if (result)
+            {
+                return Ok(new { message = "Airplane reactivated successfully." });
+            }
+            else
+            {
+                return NotFound(new { message = "Airplane not found." });
+            }
+        }
+
         // Endpoint to delete an airplane
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
