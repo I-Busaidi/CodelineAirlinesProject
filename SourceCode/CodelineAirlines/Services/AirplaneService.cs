@@ -98,6 +98,22 @@ namespace CodelineAirlines.Services
             _airplaneRepository.Update(airplane);
         }
 
+        // New method to deactivate an airplane by setting its IsActive property to false (0)
+        public bool DeactivateAirplane(int id)
+        {
+            var airplane = _airplaneRepository.GetById(id);
+
+            if (airplane == null)
+            {
+                return false; // Airplane not found
+            }
+
+            airplane.IsActive = false; // Deactivate the airplane
+            _airplaneRepository.Update(airplane); // Save changes
+
+            return true; // Successfully deactivated
+        }
+
         // Delete an airplane's details
         public bool DeleteAirplane(int id)
         {
