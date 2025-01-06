@@ -132,7 +132,7 @@ namespace CodelineAirlines.Services
                 throw new KeyNotFoundException("Source airport not found");
             }
 
-            if (sourceAirport.IsActive)
+            if (!sourceAirport.IsActive)
             {
                 throw new InvalidOperationException("Source airport is not currently unavailable.");
             }
@@ -143,7 +143,7 @@ namespace CodelineAirlines.Services
                 throw new KeyNotFoundException("Destination airport not found");
             }
 
-            if (destinationAirport.IsActive)
+            if (!destinationAirport.IsActive)
             {
                 throw new InvalidOperationException("Destination airport is not currently unavailable.");
             }
