@@ -1,9 +1,11 @@
 ﻿using CodelineAirlines.DTOs.AirplaneDTOs;
 using CodelineAirlines.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodelineAirlines.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class SeatTemplatesController : ControllerBase
@@ -16,6 +18,7 @@ namespace CodelineAirlines.Controllers
         }
 
         // Endpoint to generate seat templates for an airplane model
+        [Authorize(Roles = "admin")]
         [HttpPost("generate")]
         public IActionResult GenerateSeatTemplates([FromBody] GenerateSeatTemplateDto dto)
         {
@@ -31,6 +34,7 @@ namespace CodelineAirlines.Controllers
         }
 
         // Endpoint to get seat templates by airplane model, ordered by SeatCost in descending order
+        [Authorize(Roles = "admin")]
         [HttpGet("by-model/{airplaneModel}")]
         public IActionResult GetSeatTemplatesByModelOrderedByCost(string airplaneModel)
         {
@@ -47,6 +51,7 @@ namespace CodelineAirlines.Controllers
         }
 
         // Endpoint to delete seat templates by airplane model
+        [Authorize(Roles = "admin")]
         [HttpDelete("delete/{airplaneModel}")]
         public IActionResult DeleteSeatTemplatesByModel(string airplaneModel)
         {
