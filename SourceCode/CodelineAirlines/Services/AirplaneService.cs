@@ -8,16 +8,23 @@ namespace CodelineAirlines.Services
     public class AirplaneService : IAirplaneService
     {
         private readonly IAirplaneRepository _airplaneRepository;
+        private readonly ISeatTemplateService _seatTemplateService;
         private readonly IMapper _mapper;
 
-        public AirplaneService(IAirplaneRepository airplaneRepository, IMapper mapper)
+        public AirplaneService(IAirplaneRepository airplaneRepository, IMapper mapper, ISeatTemplateService seatTemplateService)
         {
             _airplaneRepository = airplaneRepository;
             _mapper = mapper;
+            _seatTemplateService = seatTemplateService;
         }
 
         public Airplane AddAirplane(AirplaneCreateDTO airplaneCreateDto)
         {
+            var seatTemplate = _seatTemplateService.GetSeatTemplatesByModel(airplaneCreateDto.AirplaneModel);
+            if (seatTemplate == null || seatTemplate.Count() == 0)
+            {
+                throw new InvalidOperationException("This model does not exist in the templates.");
+            }
             var airplane = _mapper.Map<Airplane>(airplaneCreateDto);
             // Check if the input DTO is null
             if (airplaneCreateDto == null)
