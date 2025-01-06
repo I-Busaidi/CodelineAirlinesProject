@@ -108,8 +108,5 @@ namespace CodelineAirlines.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
-
-
-
     }
 }

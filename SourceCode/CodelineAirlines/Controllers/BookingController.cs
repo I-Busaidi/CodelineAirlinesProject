@@ -1,10 +1,12 @@
 ﻿using CodelineAirlines.DTOs.BookingDTOs;
 using CodelineAirlines.Models;
 using CodelineAirlines.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodelineAirlines.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BookingController : ControllerBase
@@ -65,6 +67,7 @@ namespace CodelineAirlines.Controllers
         }
 
         // Get all bookings for admin
+        [Authorize(Roles = "admin")]
         [HttpGet("admin/bookings")]
         public IEnumerable<Booking> GetAllBookingsForAdmin()
         {

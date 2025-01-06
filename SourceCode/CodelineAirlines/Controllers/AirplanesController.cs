@@ -1,10 +1,12 @@
 ﻿using CodelineAirlines.DTOs.AirplaneDTOs;
 using CodelineAirlines.Models;
 using CodelineAirlines.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodelineAirlines.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class AirplanesController : ControllerBase
@@ -16,6 +18,7 @@ namespace CodelineAirlines.Controllers
             _airplaneService = airplaneService;
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public IActionResult AddAirplane([FromBody] AirplaneCreateDTO airplaneCreateDto)
         {
@@ -45,6 +48,7 @@ namespace CodelineAirlines.Controllers
         }
 
         // Sample method to get an airplane (for the "CreatedAtAction" response)
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public IActionResult GetAirplane(int id)
         {
@@ -59,6 +63,7 @@ namespace CodelineAirlines.Controllers
         }
 
         // Endpoint to get all airplanes
+        [Authorize(Roles = "admin")]
         [HttpGet]
         public IActionResult GetAllAirplanes()
         {
@@ -73,6 +78,7 @@ namespace CodelineAirlines.Controllers
         }
 
         // Endpoint to update an airplane's details
+        [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public IActionResult UpdateAirplane(int id, [FromBody] AirplaneCreateDTO airplaneCreateDto)
         {
@@ -87,6 +93,7 @@ namespace CodelineAirlines.Controllers
         }
 
         // Endpoint to delete an airplane
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public IActionResult DeleteAirplane(int id)
         {
