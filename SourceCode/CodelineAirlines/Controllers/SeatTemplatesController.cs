@@ -22,15 +22,22 @@ namespace CodelineAirlines.Controllers
         [HttpPost("generate")]
         public IActionResult GenerateSeatTemplates([FromBody] GenerateSeatTemplateDto dto)
         {
-            if (dto == null || string.IsNullOrEmpty(dto.AirplaneModel))
+            try
             {
-                return BadRequest("Invalid data.");
+                if (dto == null || string.IsNullOrEmpty(dto.AirplaneModel))
+                {
+                    return BadRequest("Invalid data.");
+                }
+
+                // Call the service layer to generate seat templates
+                _seatTemplateService.GenerateSeatTemplatesForModel(dto);
+
+                return Ok("Seat templates successfully generated.");
             }
-
-            // Call the service layer to generate seat templates
-            _seatTemplateService.GenerateSeatTemplatesForModel(dto);
-
-            return Ok("Seat templates successfully generated.");
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // Endpoint to get seat templates by airplane model, ordered by SeatCost in descending order
