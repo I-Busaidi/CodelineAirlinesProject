@@ -16,6 +16,13 @@ namespace CodelineAirlines.Services
             _mapper = mapper;
         }
 
+        public List<string> GetAllAvailableModels()
+        {
+            var models = _seatTemplateRepository.GetAllModels().DistinctBy(m => m.AirplaneModel).Select(m => m.AirplaneModel).ToList();
+
+            return models;
+        }
+
         // This method will automatically generate seat templates for the given airplane model and seat distribution
         public void GenerateSeatTemplatesForModel(GenerateSeatTemplateDto dto)
         {
