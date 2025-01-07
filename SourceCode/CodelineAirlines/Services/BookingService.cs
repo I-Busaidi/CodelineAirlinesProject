@@ -455,12 +455,16 @@ namespace CodelineAirlines.Services
 
             // Filter seats based on the selected class
             var availableSeats = seats
-                .Where(s => s.Type.Equals(seatClass, StringComparison.OrdinalIgnoreCase) &&
+                .Where(s => NormalizeString(s.Type).Contains(NormalizeString(seatClass)) &&
                             !flight.Bookings.Any(b => b.SeatNo == s.SeatNumber))
                 .ToList();
 
             List<SeatsOutputDTO> availableSeatsList = _mapper.Map<List<SeatsOutputDTO>>(availableSeats);
             return availableSeatsList;
+        }
+        private string NormalizeString(string input)
+        {
+            return string.Concat(input.Where(c => !char.IsWhiteSpace(c))).ToLower();
         }
     }
 }
