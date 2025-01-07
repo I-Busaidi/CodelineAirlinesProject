@@ -48,7 +48,7 @@ namespace CodelineAirlines.Controllers
         }
 
         // Sample method to get an airplane (for the "CreatedAtAction" response)
-        [AllowAnonymous]
+        [Authorize(Roles = "admin")]
         [HttpGet("{id}")]
         public IActionResult GetAirplane(int id)
         {
