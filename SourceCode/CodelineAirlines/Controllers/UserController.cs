@@ -1,9 +1,11 @@
 ﻿using CodelineAirlines.DTOs.UserDTOs;
+using CodelineAirlines.Helpers;
 using CodelineAirlines.Models;
 using CodelineAirlines.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace CodelineAirlines.Controllers
 {
@@ -77,11 +79,13 @@ namespace CodelineAirlines.Controllers
         }
         [Authorize]
         [HttpGet("GetUserDetails")]
-        public IActionResult GetUserDetails(int id)
+        public IActionResult GetUserDetails()
         {
             try
             {
-                var user = _userService.GetUserByID(id);
+                string token = JwtHelper.ExtractToken(Request);
+                int userId = int.Parse(JwtHelper.GetClaimValue(token, JwtRegisteredClaimNames.Sub));
+                var user = _userService.GetUserByID(userId);
                 if (user == null)
                 {
                     return NotFound("user not found");
