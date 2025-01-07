@@ -12,6 +12,11 @@ namespace CodelineAirlines.Repositories
             _context = context;
         }
 
+        public IEnumerable<SeatTemplate> GetAllModels()
+        {
+            return _context.SeatTemplates;
+        }
+
         // Adds a SeatTemplate to the database
         public void Add(SeatTemplate seatTemplate)
         {

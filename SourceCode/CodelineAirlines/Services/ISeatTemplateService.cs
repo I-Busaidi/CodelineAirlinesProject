@@ -12,5 +12,6 @@ namespace CodelineAirlines.Services
 
         // Deletes all SeatTemplates by Airplane Model
         void DeleteSeatTemplatesByModel(string airplaneModel);
+        List<string> GetAllAvailableModels();
     }
 }

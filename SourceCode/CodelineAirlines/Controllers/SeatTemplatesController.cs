@@ -68,5 +68,24 @@ namespace CodelineAirlines.Controllers
             // Return a success response
             return NoContent(); // HTTP 204 No Content to indicate successful deletion
         }
+
+        [AllowAnonymous]
+        [HttpGet("ViewAvailableModels")]
+        public IActionResult ViewAvailableModels()
+        {
+            try
+            {
+                var models = _seatTemplateService.GetAllAvailableModels();
+                return Ok(models);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
