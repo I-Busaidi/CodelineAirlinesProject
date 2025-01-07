@@ -28,33 +28,5 @@ namespace CodelineAirlines.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-        [HttpGet("GetWeatherForecast/{cityName}")]
-        public async Task<IActionResult> GetWeatherForecast(string cityName = "Muscat")
-        {
-            try
-            {
-                var forecastData = await _weatherService.GetFiveDayForecastAsync(cityName);
-
-                // Optional: Group data by day for easier display
-                var groupedForecast = GroupForecastByDay(forecastData.List);
-
-                return Ok(groupedForecast);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [NonAction]
-        private Dictionary<DateTime, List<ForecastItem>> GroupForecastByDay(List<ForecastItem> forecastItems)
-        {
-            var grouped = forecastItems
-                .GroupBy(f => f.Dt.Date)  // Group by date only (ignores time)
-                .ToDictionary(g => g.Key, g => g.ToList());
-
-            return grouped;
-        }
     }
 }
