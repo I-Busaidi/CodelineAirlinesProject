@@ -77,7 +77,5 @@ namespace CodelineAirlines.Repositories
 
             return passenger.LoyaltyPoints;
         }
-
-
     }
 }

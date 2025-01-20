@@ -1,6 +1,7 @@
 ﻿using ActiveUp.Net.Mail;
 using AutoMapper;
 using CodelineAirlines.DTOs.AirplaneDTOs;
+using CodelineAirlines.DTOs.AirplaneSpecDTOs;
 using CodelineAirlines.DTOs.AirportDTOs;
 using CodelineAirlines.DTOs.FlightDTOs;
 using CodelineAirlines.DTOs.ReviewDTOs;
@@ -20,6 +21,7 @@ namespace CodelineAirlines.Services
         private readonly IAirplaneService _airplaneService;
         private readonly IBookingService _bookingService;
         private readonly ISeatTemplateService _seatTemplateService;
+        private readonly IAirplaneSpecService _airplaneSpecService;
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IReviewService _reviewService;
@@ -28,7 +30,18 @@ namespace CodelineAirlines.Services
         private readonly WeatherService _weatherService;
 
 
-        public CompoundService(IFlightService flightService, IAirportService airportService, IAirplaneService airplaneService, IMapper mapper, IBookingService bookingService, ApplicationDbContext context, ISeatTemplateService seatTemplateService, IReviewService reviewService,IPassengerService passengerService, IAirportLocationService airportLocationService, WeatherService weatherService)
+        public CompoundService(IFlightService flightService
+            , IAirportService airportService
+            , IAirplaneService airplaneService
+            , IMapper mapper
+            , IBookingService bookingService
+            , ApplicationDbContext context
+            , ISeatTemplateService seatTemplateService
+            , IReviewService reviewService
+            , IPassengerService passengerService
+            , IAirportLocationService airportLocationService
+            , WeatherService weatherService
+            , IAirplaneSpecService airplaneSpecService)
         {
             _context = context;
             _bookingService = bookingService;
@@ -41,6 +54,7 @@ namespace CodelineAirlines.Services
             _passengerService = passengerService;
             _airportLocationService = airportLocationService;
             _weatherService = weatherService;
+            _airplaneSpecService = airplaneSpecService;
         }
 
         public (string airportName, string country, string city) AddAirport(AirportControllerInputDTO airportInput)
@@ -74,10 +88,10 @@ namespace CodelineAirlines.Services
 
                     return (airport.AirportName, airport.Country, airport.City);
                 }
-                catch (Exception ex)
+                catch (Exception ex) 
                 {
                     transcation.Rollback();
-                    throw new InvalidOperationException("An error occured when adding airport");
+                    throw new InvalidOperationException("An error occured when adding airport" + ex.Message);
                 }
             }
         }
@@ -514,6 +528,27 @@ namespace CodelineAirlines.Services
             var availableSeats = seats.Where(s => !flight.Bookings.Any(b => b.SeatNo == s.SeatNumber)).ToList();
             List<SeatsOutputDTO> availableSeatsList = _mapper.Map<List<SeatsOutputDTO>>(availableSeats);
             return availableSeatsList;
+        }
+
+        public string AddAirplaneModel(AirplaneSpecInputDTO airplaneSpecInput)
+        {
+            using (var transcation = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var airplaneSpecs = _airplaneSpecService.AddAirplaneSpecs(airplaneSpecInput);
+
+                    _context.SaveChanges();
+                    transcation.Commit();
+
+                    return airplaneSpecInput.Model ;
+                }
+                catch (Exception ex)
+                {
+                    transcation.Rollback();
+                    throw new InvalidOperationException("An error occured when adding model " + ex.Message);
+                }
+            }
         }
     }
 }

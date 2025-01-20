@@ -1,7 +1,10 @@
-﻿namespace CodelineAirlines.DTOs.AirplaneDTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CodelineAirlines.DTOs.AirplaneDTOs
 {
     public class GenerateSeatTemplateDto
     {
+        [Required]
         public string AirplaneModel { get; set; }
 
         public int EconomySeats { get; set; }

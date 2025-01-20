@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CodelineAirlines.DTOs.AirplaneDTOs;
+using CodelineAirlines.DTOs.AirplaneSpecDTOs;
 using CodelineAirlines.DTOs.AirportDTOs;
 using CodelineAirlines.DTOs.FlightDTOs;
 using CodelineAirlines.DTOs.PassengerDTOs;
@@ -25,6 +26,8 @@ namespace CodelineAirlines.Mapping
             CreateMap<SeatTemplate, SeatsOutputDTO>()
                 .ForMember(dest => dest.SeatLocation, opt => opt.MapFrom(src => GetSeatLocation(src.SeatLocation)));
             CreateMap<GenerateSeatTemplateDto, SeatTemplate>();
+
+            CreateMap<AirplaneSpecs, AirplaneSpecOutputDTO>();
 
             // User related maps
             CreateMap<UserInputDTOs, User>()

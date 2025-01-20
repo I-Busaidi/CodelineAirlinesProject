@@ -1,4 +1,5 @@
 ﻿using CodelineAirlines.DTOs.AirplaneDTOs;
+using CodelineAirlines.DTOs.AirplaneSpecDTOs;
 using CodelineAirlines.DTOs.AirportDTOs;
 using CodelineAirlines.DTOs.FlightDTOs;
 using CodelineAirlines.DTOs.ReviewDTOs;
@@ -25,5 +26,7 @@ namespace CodelineAirlines.Services
         (string airportName, string country, string city) AddAirport(AirportControllerInputDTO airportInput);
 
         int ClaculateFlightInputDuration(FlightControllerInput flightControllerInput);
+
+        string AddAirplaneModel(AirplaneSpecInputDTO airplaneSpecInput);
     }
 }

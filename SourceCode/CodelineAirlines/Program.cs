@@ -39,6 +39,9 @@ namespace CodelineAirlines
             builder.Services.AddScoped<IAirplaneRepository, AirplaneRepository>();
             builder.Services.AddScoped<IAirplaneService, AirplaneService>();
 
+            // Adding Airplane specs related services.
+            builder.Services.AddScoped<IAirplaneSpecRepository, AirplaneSpecRepository>();
+
             // Adding Seats Template related services.
             builder.Services.AddScoped<ISeatTemplateRepository, SeatTemplateRepository>();
             builder.Services.AddScoped<ISeatTemplateService, SeatTemplateService>();

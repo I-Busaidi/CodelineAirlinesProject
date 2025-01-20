@@ -21,8 +21,6 @@ namespace CodelineAirlines.Repositories
         public void Add(SeatTemplate seatTemplate)
         {
             _context.SeatTemplates.Add(seatTemplate);  // Add the SeatTemplate to the DbSet
-
-            _context.SaveChanges();
         }
 
         // Retrieves seat templates by airplane model name, ordered by SeatCost in descending order
