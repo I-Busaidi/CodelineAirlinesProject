@@ -10,7 +10,9 @@ namespace CodelineAirlines.Models
         public int AirplaneId { get; set; }
 
         [Required]
+        [ForeignKey("AirplaneSpec")]
         public string AirplaneModel { get; set; }
+        public AirplaneSpecs AirplaneSpec { get; set; }
 
         [Required(ErrorMessage = "Manufacture date is required")]
         public DateOnly ManufactureDate { get; set; }

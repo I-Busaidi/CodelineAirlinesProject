@@ -35,6 +35,7 @@ namespace CodelineAirlines
         public DbSet<Passenger> Passengers { get; set; }
         public DbSet<Airplane> Airplanes { get; set; }
         public DbSet<SeatTemplate> SeatTemplates { get; set; }
+        public DbSet<AirplaneSpecs> AirplaneSpecs { get; set; }
         public DbSet<Airport> Airports { get; set; }
         public DbSet<Flight> Flights { get; set; }
         public DbSet<Booking> Bookings { get; set; }

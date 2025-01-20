@@ -28,31 +28,44 @@ namespace CodelineAirlines.Services
         {
             var seatTemplates = new List<SeatTemplate>();
 
-            if (dto.FirstClassSeats % 4 != 0)
+            if (dto.FirstClassSeats != 0 && dto.FirstClassSeats % dto.FirstClassSeatsPerRow.Sum() != 0)
             {
-                throw new InvalidOperationException("First class seats must be multiples of 4 (4, 8, 12, 16, ...)");
+                throw new InvalidOperationException($"First class number of seats must be multiples of seats per row entered ({dto.FirstClassSeatsPerRow})");
             }
 
-            if (dto.BusinessSeats % 6 != 0)
+            if (dto.BusinessSeats != 0 && dto.BusinessSeats % dto.BusinessSeatsPerRow.Sum() != 0)
             {
-                throw new InvalidOperationException("Business class seats must be multiples of 6 (6, 12, 18, 24, ...)");
+                throw new InvalidOperationException($"Business class number of seats must be multiples of seats per row entered ({dto.BusinessSeatsPerRow})");
             }
 
-            if (dto.EconomySeats % 10 != 0)
+            if (dto.EconomySeats % dto.EconomySeatsPerRow.Sum() != 0)
             {
-                throw new InvalidOperationException("Economy class seats must be multiples of 10 (10, 20, 30, 40, ...)");
+                throw new InvalidOperationException($"Economy class number of seats must be multiples of seats per row entered ({dto.EconomySeatsPerRow})");
             }
 
+            if (dto.EconomySeats < 50)
+            {
+                throw new InvalidOperationException("Economy class number of seats must be at least 50");
+            }
 
+            int seatsCount = 1;
 
             // Generate Seat Templates for First Class
-            seatTemplates.AddRange(GenerateSeatsForClass(dto.AirplaneModel, "First Class", dto.FirstClassSeats, 500));  // 500 for first class seat cost
+            if (dto.FirstClassSeats != 0)
+            {
+                seatTemplates.AddRange(GenerateSeatsForClass(dto.AirplaneModel, "First Class", dto.FirstClassSeats, 0.15m, dto.FirstClassSeatsPerRow, seatsCount, dto.NumberOfAisles));  // +15% for first class seat cost
+                seatsCount = seatTemplates.Count + 1;
+            }
 
             // Generate Seat Templates for Business Class
-            seatTemplates.AddRange(GenerateSeatsForClass(dto.AirplaneModel, "Business", dto.BusinessSeats, 200, seatTemplates.Count +1, 6));  // 200 for business seat cost
+            if (dto.BusinessSeats != 0)
+            {
+                seatTemplates.AddRange(GenerateSeatsForClass(dto.AirplaneModel, "Business", dto.BusinessSeats, 0.1m, dto.BusinessSeatsPerRow, seatsCount, dto.NumberOfAisles));  // +10% for business seat cost
+                seatsCount = seatTemplates.Count + 1;
+            }
 
             // Generate Seat Templates for Economy Class
-            seatTemplates.AddRange(GenerateSeatsForClass(dto.AirplaneModel, "Economy", dto.EconomySeats, 100, seatTemplates.Count +1, 10));  // 100 for economy seat cost
+            seatTemplates.AddRange(GenerateSeatsForClass(dto.AirplaneModel, "Economy", dto.EconomySeats, 0.05m, dto.EconomySeatsPerRow, seatsCount, dto.NumberOfAisles));  // +5% for economy seat cost
 
             // Add to database
             foreach (var seatTemplate in seatTemplates)
@@ -62,31 +75,44 @@ namespace CodelineAirlines.Services
         }
 
         // Helper method to generate seats for a specific class
-        private List<SeatTemplate> GenerateSeatsForClass(string airplaneModel, string seatType, int totalSeats, decimal seatCost, int startingNumber = 1, int seatsPerRow = 4)
+        private List<SeatTemplate> GenerateSeatsForClass(
+            string airplaneModel,
+            string seatType,
+            int totalSeats,
+            decimal seatCost,
+            int[] seatsPerRow,
+            int startingNumber = 1,
+            int aisles = 1)
         {
             var seatTemplates = new List<SeatTemplate>();
-            int rows = (totalSeats / seatsPerRow) + startingNumber -1;  // Assuming there are 10 seats per row (3 columns on each side of the aisle)
+            int rows = (totalSeats + seatsPerRow.Sum() - 1) / seatsPerRow.Sum() + startingNumber - 1; // Calculate total rows needed.
 
             // Generate the seat templates
-            int seatCount = 1;
             for (int row = startingNumber; row <= rows; row++)
             {
-                for (int column = 1; column <= seatsPerRow; column++)  // Assuming 10 seats per row
+                for (int column = 1; column <= seatsPerRow.Sum(); column++)
                 {
-                    string seatNumber = $"{row}{(char)('A' + column - 1)}";  // Seat numbers: 1A, 1B, etc.
-                    bool isWindowSeat = (column == 1 || column == seatsPerRow);  // Window seats are the first and last in each row
+                    string seatNumber = $"{row}{(char)('A' + column - 1)}"; // Seat numbers: 1A, 1B, etc.
+
+                    // Determine seat location type
+                    bool isWindowSeat = (column == 1 || column == seatsPerRow.Sum()); // First and last column in the row.
+                    bool isAisleSeat = aisles == 1
+                        ? (column == 2 || column == seatsPerRow.Sum() - 1) // For single-aisle planes.
+                        : (column == 2 || column == seatsPerRow.Sum() / 2 || column == seatsPerRow.Sum() / 2 + 1 || column == seatsPerRow.Sum() - 1); // For double-aisle planes.
+                    bool isMiddleSeat = !isWindowSeat && !isAisleSeat; // Remaining seats are middle seats.
+
+                    int location = isWindowSeat ? 0 : isAisleSeat ? 1 : 2; // Map to custom location codes: 0 = Window, 1 = Aisle, 2 = Middle.
 
                     var seatTemplate = new SeatTemplate
                     {
                         AirplaneModel = airplaneModel,
                         Type = seatType,
                         SeatNumber = seatNumber,
-                        IsWindowSeat = isWindowSeat,
+                        SeatLocation = location,
                         SeatCost = seatCost
                     };
 
                     seatTemplates.Add(seatTemplate);
-                    seatCount++;
                 }
             }
 

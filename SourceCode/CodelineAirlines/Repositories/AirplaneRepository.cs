@@ -23,6 +23,7 @@ namespace CodelineAirlines.Repositories
         {
             return _context.Airplanes
                 .Include(a => a.Airport)
+                .Include(a => a.AirplaneSpec)
                 .FirstOrDefault(a => a.AirplaneId == id);
         }
 
@@ -30,6 +31,7 @@ namespace CodelineAirlines.Repositories
         {
             return _context.Airplanes // Retrieve all airplanes synchronously
              .Include(a => a.Airport)
+             .Include(a => a.AirplaneSpec)
              .ToList();
         }
 

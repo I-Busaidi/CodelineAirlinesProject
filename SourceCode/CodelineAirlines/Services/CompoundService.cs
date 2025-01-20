@@ -84,6 +84,8 @@ namespace CodelineAirlines.Services
 
         public int ClaculateFlightInputDuration(FlightControllerInput flightControllerInput)
         {
+            var airplane = _airplaneService.GetAirplaneByIdWithRelatedData(flightControllerInput.AirplaneId);
+
             var sourceAirport = _airportService.GetAirportByNameWithRelatedData(flightControllerInput.SourceAirportName);
             var destAirport = _airportService.GetAirportByNameWithRelatedData(flightControllerInput.DestinationAirportName);
 
@@ -95,7 +97,7 @@ namespace CodelineAirlines.Services
                 destCoords.AirportLatitude, 
                 destCoords.AirportLongitude);
 
-            TimeSpan duration = FlightDistanceClaculator.CalculateFlightDuration(distance, 850.0);
+            TimeSpan duration = FlightDistanceClaculator.CalculateFlightDuration(distance, airplane.AirplaneSpec.AvgSpeed);
 
             return AddFlight(new FlightInputDTO
             {

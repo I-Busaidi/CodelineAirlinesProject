@@ -23,7 +23,7 @@ namespace CodelineAirlines.Mapping
             CreateMap<Airplane, AirplaneOutputDto>()
                 .ForMember(dest => dest.AirportName, opt => opt.MapFrom(src => src.Airport.AirportName)); // Mapping the Airport Name
             CreateMap<SeatTemplate, SeatsOutputDTO>()
-                .ForMember(dest => dest.SeatLocation, opt => opt.MapFrom(src => GetSeatLocation(src.IsWindowSeat)));
+                .ForMember(dest => dest.SeatLocation, opt => opt.MapFrom(src => GetSeatLocation(src.SeatLocation)));
             CreateMap<GenerateSeatTemplateDto, SeatTemplate>();
 
             // User related maps
@@ -53,15 +53,19 @@ namespace CodelineAirlines.Mapping
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => Enum.GetName(typeof(FlightStatus), src.StatusCode)));
         }
 
-        private string GetSeatLocation(bool isWindowSeat)
+        private string GetSeatLocation(int seatLocation)
         {
-            if (isWindowSeat)
+            if (seatLocation == 0)
             {
                 return "Window seat";
             }
-            else
+            else if (seatLocation == 1)
             {
                 return "Aisle seat";
+            }
+            else
+            {
+                return "Middle seat";
             }
         }
     }
