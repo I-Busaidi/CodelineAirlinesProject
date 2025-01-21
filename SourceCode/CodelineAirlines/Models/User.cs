@@ -23,7 +23,6 @@ namespace CodelineAirlines.Models
         public string Password { get; set; }
 
         [Required(ErrorMessage = "Role is required")]
-        //[RegularExpression(@"^(admin|user)$", ErrorMessage = "Role must be either 'admin' or 'user'.")]
         [StringLength(15)]
         public string UserRole { get; set; }
 

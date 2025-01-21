@@ -538,6 +538,8 @@ namespace CodelineAirlines.Services
                 {
                     var airplaneSpecs = _airplaneSpecService.AddAirplaneSpecs(airplaneSpecInput);
 
+                    _seatTemplateService.GenerateSeatTemplatesForModel(airplaneSpecInput.SeatTemplate);
+
                     _context.SaveChanges();
                     transcation.Commit();
 

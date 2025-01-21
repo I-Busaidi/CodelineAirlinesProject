@@ -95,10 +95,10 @@ namespace CodelineAirlines.Services
                     string seatNumber = $"{row}{(char)('A' + column - 1)}"; // Seat numbers: 1A, 1B, etc.
 
                     // Determine seat location type
-                    bool isWindowSeat = (column == 1 || column == seatsPerRow[2]); // First and last column in the row.
+                    bool isWindowSeat = (column == 1 || column == seatsPerRow.Sum()); // First and last column in the row.
                     bool isAisleSeat = aisles == 1
                         ? (column == seatsPerRow[0] || column == seatsPerRow[0] + 1) // For single-aisle planes.
-                        : (column == seatsPerRow[0] || column == seatsPerRow[0] + 1 || column == seatsPerRow[1] || column == seatsPerRow[1] + 1); // For double-aisle planes.
+                        : (column == seatsPerRow[0] || column == seatsPerRow[0] + 1 || column == seatsPerRow[0]+seatsPerRow[1] || column == seatsPerRow[0] + seatsPerRow[1] + 1); // For double-aisle planes.
                     bool isMiddleSeat = !isWindowSeat && !isAisleSeat; // Remaining seats are middle seats.
 
                     int location = isWindowSeat ? 0 : isAisleSeat ? 1 : 2; // Map to custom location codes: 0 = Window, 1 = Aisle, 2 = Middle.

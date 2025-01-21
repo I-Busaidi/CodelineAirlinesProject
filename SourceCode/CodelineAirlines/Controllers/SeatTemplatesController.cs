@@ -1,4 +1,5 @@
 ﻿using CodelineAirlines.DTOs.AirplaneDTOs;
+using CodelineAirlines.DTOs.AirplaneSpecDTOs;
 using CodelineAirlines.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,12 @@ namespace CodelineAirlines.Controllers
     public class SeatTemplatesController : ControllerBase
     {
         private readonly ISeatTemplateService _seatTemplateService;
+        private readonly ICompoundService _compoundService;
 
-        public SeatTemplatesController(ISeatTemplateService seatTemplateService)
+        public SeatTemplatesController(ISeatTemplateService seatTemplateService, ICompoundService compoundService)
         {
             _seatTemplateService = seatTemplateService;
+            _compoundService = compoundService;
         }
 
         // Endpoint to generate seat templates for an airplane model
@@ -81,6 +84,25 @@ namespace CodelineAirlines.Controllers
             catch (InvalidOperationException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("AddAirplaneSpec")]
+        public IActionResult AddAirplaneSpec([FromBody] AirplaneSpecInputDTO airplaneSpecInput)
+        {
+            try
+            {
+                var result = _compoundService.AddAirplaneModel(airplaneSpecInput);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return UnprocessableEntity(ex.Message);
             }
             catch (Exception ex)
             {
