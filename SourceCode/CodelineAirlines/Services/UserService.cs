@@ -134,6 +134,17 @@ namespace CodelineAirlines.Services
 
         }
 
+        public User GetUserByIdWithRelatedData(int userId)
+        {
+            var user = _userrepo.GetById(userId);
+            if (user == null)
+            {
+                throw new KeyNotFoundException("Could not find user");
+            }
+
+            return user;
+        }
+
         public void UpdateUsers(UserInputDTOs userInputDTO, int id)
         {
             // Retrieve the existing user by ID

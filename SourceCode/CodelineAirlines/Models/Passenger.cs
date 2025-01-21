@@ -11,6 +11,10 @@ namespace CodelineAirlines.Models
         [StringLength(30)]
         public string Passport { get; set; }
 
+        [Required]
+        [StringLength(50)]
+        public string PassengerName { get; set; }
+
         [ForeignKey("User")]
         public int UserId { get; set; }
         public User User { get; set; }

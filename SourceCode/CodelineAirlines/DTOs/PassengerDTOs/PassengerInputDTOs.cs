@@ -4,6 +4,10 @@ namespace CodelineAirlines.DTOs.PassengerDTOs
 {
     public class PassengerInputDTOs
     {
+        [Required]
+        [StringLength(50)]
+        public string PassengerName { get; set; }
+
         [Required(ErrorMessage = "Passport number is required")]
         [StringLength(30)]
         public string Passport { get; set; }

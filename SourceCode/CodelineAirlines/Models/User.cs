@@ -27,5 +27,7 @@ namespace CodelineAirlines.Models
         public string UserRole { get; set; }
 
         public bool isActive { get; set; } = true;
+
+        public virtual ICollection<Passenger> Passengers { get; set; }
     }
 }

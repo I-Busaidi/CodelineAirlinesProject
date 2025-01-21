@@ -1,4 +1,5 @@
 ﻿using CodelineAirlines.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CodelineAirlines.Repositories
 {
@@ -30,7 +31,7 @@ namespace CodelineAirlines.Repositories
         }
         public User GetById(int id)
         {
-            return _context.Users.FirstOrDefault(a => a.UserId == id);
+            return _context.Users.Include(u => u.Passengers).ThenInclude(p => p.Bookings).FirstOrDefault(u => u.UserId == id);
         }
 
         public void UpdateUser(User user)

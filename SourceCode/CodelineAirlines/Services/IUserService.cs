@@ -1,4 +1,5 @@
 ﻿using CodelineAirlines.DTOs.UserDTOs;
+using CodelineAirlines.Models;
 
 namespace CodelineAirlines.Services
 {
@@ -11,5 +12,7 @@ namespace CodelineAirlines.Services
         public void UpdateUsers(UserInputDTOs userInputDTO, int id);
         public void DeactivateUser(int userId);
         public void ReactivateUser(int userId);
+
+        User GetUserByIdWithRelatedData(int userId);
     }
 }
