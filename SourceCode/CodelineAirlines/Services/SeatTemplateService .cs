@@ -54,14 +54,14 @@ namespace CodelineAirlines.Services
             if (dto.FirstClassSeats != 0)
             {
                 seatTemplates.AddRange(GenerateSeatsForClass(dto.AirplaneModel, "First Class", dto.FirstClassSeats, 0.15m, dto.FirstClassSeatsPerRow, seatsCount, dto.NumberOfAisles));  // +15% for first class seat cost
-                seatsCount = seatTemplates.Count + 1;
+                seatsCount = (seatTemplates.Count / dto.FirstClassSeatsPerRow.Sum()) + 1;
             }
 
             // Generate Seat Templates for Business Class
             if (dto.BusinessSeats != 0)
             {
                 seatTemplates.AddRange(GenerateSeatsForClass(dto.AirplaneModel, "Business", dto.BusinessSeats, 0.1m, dto.BusinessSeatsPerRow, seatsCount, dto.NumberOfAisles));  // +10% for business seat cost
-                seatsCount = seatTemplates.Count + 1;
+                seatsCount += (seatTemplates.Count / (dto.FirstClassSeatsPerRow.Sum() + dto.BusinessSeatsPerRow.Sum()) + 2);
             }
 
             // Generate Seat Templates for Economy Class
