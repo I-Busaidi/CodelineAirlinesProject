@@ -40,12 +40,12 @@ namespace CodelineAirlines.Repositories
         {
             // Find the passenger to update
             var existingPassenger = _context.Passengers
-                .FirstOrDefault(p => p.UserId == passenger.UserId);
+                .FirstOrDefault(p => p.Passport == passenger.Passport);
 
             if (existingPassenger != null)
             {
                 // Update the passenger properties
-                existingPassenger.Passport = passenger.Passport;
+                
                 existingPassenger.Gender = passenger.Gender;
                 existingPassenger.BirthDate = passenger.BirthDate;
                 existingPassenger.Nationality = passenger.Nationality;
