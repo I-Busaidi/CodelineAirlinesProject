@@ -21,13 +21,13 @@ namespace CodelineAirlines.Repositories
             return _context.Passengers.Any(p => p.UserId == userId);
         }
 
-        public Passenger GetPassengerByUserId(int userId)
+        public IQueryable<Passenger> GetPassengerByUserId(int userId)
         {
             // Find the passenger with userId
-            var passenger = _context.Passengers
-                .FirstOrDefault(p => p.UserId == userId);
+            var passengers = _context.Passengers
+                .Where(p => p.UserId == userId);
 
-            return passenger;
+            return passengers;
         }
 
         public Passenger GetPassengerByPassport(string passportNumber)

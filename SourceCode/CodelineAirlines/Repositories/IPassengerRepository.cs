@@ -6,7 +6,7 @@ namespace CodelineAirlines.Repositories
     {
         void AddPassenger(Passenger passenger);
         bool PassengerExistsForUser(int userId);
-        Passenger GetPassengerByUserId(int userId);
+        IQueryable<Passenger> GetPassengerByUserId(int userId);
         Passenger GetPassengerByPassport(string passportNumber);
         void UpdatePassenger(Passenger passenger);
         int GetLoyaltyPointsByUserId(int userId);

@@ -36,9 +36,16 @@ namespace CodelineAirlines.Services
             }
 
             // Check if the user already has a passenger profile
-            if (_passengerRepository.PassengerExistsForUser(userId))
+            //if (_passengerRepository.PassengerExistsForUser(userId))
+            //{
+            //    throw new InvalidOperationException("A passenger profile already exists for this user.");
+            //}
+
+            var passengerCheck = _passengerRepository.GetByPassport(passengerInputDTO.Passport);
+
+            if (passengerCheck != null)
             {
-                throw new InvalidOperationException("A passenger profile already exists for this user.");
+                throw new KeyNotFoundException($"Passenger with passport {passengerInputDTO.Passport} already exists.");
             }
 
             // Map the DTO to the Passenger entity
@@ -49,13 +56,13 @@ namespace CodelineAirlines.Services
             _passengerRepository.AddPassenger(passenger);
         }
 
-        public PassengerOutputDTO GetPassengerProfile(int userId)
+        public List<PassengerOutputDTO> GetPassengerProfile(int userId)
         {
             // Get the passenger from the repository
-            var passenger = _passengerRepository.GetPassengerByUserId(userId);
+            var passengers = _passengerRepository.GetPassengerByUserId(userId).ToList();
 
             // Map the Passenger entity to the PassengerDTO
-            var passengerDTO = _mapper.Map<PassengerOutputDTO>(passenger);
+            var passengerDTO = _mapper.Map<List<PassengerOutputDTO>>(passengers);
 
             return passengerDTO;
         }
