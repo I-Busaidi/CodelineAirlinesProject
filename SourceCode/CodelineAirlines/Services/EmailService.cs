@@ -12,18 +12,18 @@ namespace CodelineAirlines.Services
             _logger = logger;
             _configuration = configuration;
         }
-         
+
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             try
-            { 
+            {
                 var client = new System.Net.Mail.SmtpClient("smtp.gmail.com", 587)
                 {
-                    Credentials = new NetworkCredential("codelineairlines@gmail.com", "thgp ysew amvu eyrj"),
+                    Credentials = new NetworkCredential("codelinecodeline2024@gmail.com", "tfge nrki htum idxy"),
                     EnableSsl = true
                 };
 
-                var message = new MailMessage("codelineairlines@gmail.com", toEmail, subject, body);
+                var message = new MailMessage("codelinecodeline2024@gmail.com", toEmail, subject, body);
 
                 await client.SendMailAsync(message);
 
